@@ -3,10 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a1019">
+  <meta name="description" content="ARGUS investment dashboard. Locked research, portfolio construction, and disciplined capital allocation.">
+  <meta property="og:title" content="ARGUS Dashboard">
+  <meta property="og:description" content="Research with conviction. Allocate with discipline.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://zachor-sketch.github.io/argus-dashboard/">
+  <meta property="og:image" content="https://zachor-sketch.github.io/argus-dashboard/og.png">
+  <meta property="og:image:alt" content="ARGUS Dashboard — Clarity before capital.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ARGUS Dashboard">
+  <meta name="twitter:description" content="Research with conviction. Allocate with discipline.">
+  <meta name="twitter:image" content="https://zachor-sketch.github.io/argus-dashboard/og.png">
+  <meta name="argus-release" content="argus-dashboard-2026-09-03-v1">
   <title>ARGUS Dashboard</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
 </head>
 <body>
-  <h1>ARGUS Dashboard</h1>
-  <p>ARGUS is connected successfully</p>
+  <a class="skip-link" href="#main">Skip to dashboard</a>
+  <aside class="sidebar">
+    <a href="#main" class="brand" aria-label="ARGUS home"><span class="brand-mark" aria-hidden="true">A</span><span>ARGUS<small>INVESTMENT INTELLIGENCE</small></span></a>
+    <div class="workspace-label">WORKSPACE <span>01</span></div>
+    <nav aria-label="Main navigation">
+      <a href="#summary" class="active"><span aria-hidden="true">◫</span> Portfolio overview</a>
+      <a href="#decision-board"><span aria-hidden="true">▤</span> Decision board</a>
+      <a href="#companies"><span aria-hidden="true">◇</span> Company research <small>4</small></a>
+      <a href="#construction"><span aria-hidden="true">◷</span> Portfolio construction</a>
+      <a href="#radar"><span aria-hidden="true">◎</span> AI infrastructure <small>3</small></a>
+      <a href="#proof"><span aria-hidden="true">⌁</span> Forward proof</a>
+    </nav>
+    <div class="sidebar-note"><span class="eyebrow">THE ARGUS PRINCIPLE</span><p>A great company.<br>A separate allocation decision.</p><span class="muted">Company BUY ≠ Portfolio BUY</span></div>
+    <div class="sidebar-bottom"><span class="dot green-dot"></span> V10.25 baseline locked<small>Portfolio overlay · V10.34</small></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><div><span class="muted">Workspace</span><span class="slash">/</span>Portfolio overview</div><div class="topbar-right"><span class="pill neutral">USD</span><span class="snapshot-date">Snapshot · 03 Sep 2026</span><span class="avatar">Z</span></div></header>
+    <main id="main">
+      <section id="summary" aria-labelledby="page-title">
+        <div class="page-heading"><div><div class="eyebrow accent">RESEARCH → DECISION → ALLOCATION</div><h1 id="page-title">Your portfolio. In perspective.</h1><p class="muted">Conviction at the company level. Discipline at the portfolio level.</p></div><button class="button" data-open="data"><span class="dot amber-dot"></span> Price refresh required <span aria-hidden="true">↗</span></button></div>
+        <div class="section-label">PORTFOLIO SUMMARY <span>Supplied portfolio · partial holdings</span></div>
+        <div class="metrics">
+          <article class="metric"><span>Portfolio size</span><strong>$4,000,000<span class="unit">USD</span></strong><small>Supplied total · not a live NAV</small><div class="mini-line neutral-line"></div></article>
+          <article class="metric"><span>INTU holding value <span class="info-tag">EST.</span></span><strong id="holding-value">$1,904,290</strong><small id="valuation-label">5,300 shares × $359.30 locked price</small><div class="mini-line"></div></article>
+          <article class="metric danger-metric"><span>INTU concentration <span class="info-tag">EST.</span></span><strong class="red" id="current-weight">47.61%<span class="unit red">OVER MAX</span></strong><small>Target 6–8% · hard maximum 12%</small><div class="mini-line red-line"></div></article>
+          <article class="metric"><span>INTU remaining add capacity</span><strong>$0<span class="unit">BLOCKED</span></strong><small>Portfolio decision · DO NOT ADD</small><div class="mini-line amber-line"></div></article>
+        </div>
+        <div class="alert"><span class="alert-icon" aria-hidden="true">!</span><div><strong>Concentration alert: INTU exceeds its hard maximum.</strong><p id="alert-description">Estimated 47.61% weight versus a 12% limit. No additional allocation permitted by the supplied portfolio decision.</p></div><a href="#construction">Review exposure <span aria-hidden="true">↗</span></a></div>
+      </section>
+      <section id="decision-board" aria-labelledby="board-title">
+        <div class="section-heading"><div><div class="eyebrow">01 / THE DECISION LAYER</div><h2 id="board-title">Main Decision Board</h2></div><span class="pill baseline">◈ V10.25 LOCKED BASELINE</span></div>
+        <div class="panel board-panel"><div class="panel-toolbar"><p><span class="dot green-dot"></span> Four locked decisions. One portfolio constraint.</p><span class="muted">Live prices: <strong class="amber">refresh required</strong></span></div><div class="table-scroll" tabindex="0" role="region" aria-label="Decision board, scroll horizontally on small screens"><table><thead><tr><th>Company</th><th>Live price</th><th>Lock price</th><th>Intrinsic value</th><th>Expected IV</th><th>Score</th><th>Company decision</th><th class="overlay-column">Portfolio decision <small>V10.34</small></th><th><span class="sr-only">Research</span></th></tr></thead><tbody id="board-rows"></tbody></table></div><div class="board-foot"><span>◈ Locked values are historical research inputs, not current quotes.</span><span class="overlay-text">Portfolio decisions are a separate overlay.</span></div></div>
+      </section>
+      <section id="companies" aria-labelledby="companies-title">
+        <div class="section-heading"><div><div class="eyebrow">02 / UNDER THE SURFACE</div><h2 id="companies-title">Company research</h2></div><div class="search-wrap"><span aria-hidden="true">⌕</span><input id="company-search" type="search" placeholder="Find a company…" aria-label="Find a company"></div></div>
+        <div class="filter-row" role="group" aria-label="Filter company research"><button class="filter active" data-filter="all" aria-pressed="true">All companies <span>4</span></button><button class="filter" data-filter="BUY" aria-pressed="false">Buy</button><button class="filter" data-filter="WAIT" aria-pressed="false">Wait</button><button class="filter" data-filter="PROVE IT" aria-pressed="false">Prove it</button><button class="filter" data-filter="WATCH" aria-pressed="false">Watch</button><span class="muted filter-note">Select a panel to explore the thesis</span></div>
+        <div id="stock-cards" class="stock-grid"></div><p id="no-results" class="empty-state" hidden>No companies match this view. Clear your search or select All companies.</p>
+      </section>
+      <section id="construction" aria-labelledby="construction-title">
+        <div class="section-heading"><div><div class="eyebrow">03 / CAPITAL HAS CONSTRAINTS</div><h2 id="construction-title">Portfolio Construction Overlay</h2></div><span class="pill overlay">V10.34 · SEPARATE FROM BASELINE</span></div>
+        <div class="construction-rule"><strong>Company BUY does not automatically mean Portfolio BUY.</strong><span>Position size, sector exposure, and shared economic risks have the final say.</span></div>
+        <div class="construction-grid"><article class="panel allocation-panel"><div class="panel-title"><h3>INTU allocation guardrails</h3><span class="pill negative">RED · OVER MAX</span></div><label class="basis-control">Estimate using <select id="valuation-basis"><option value="lock">Locked price · $359.30</option><option value="cost">Average cost · $357.21283</option></select></label><div class="weight-display"><strong id="overlay-weight">47.61<span>%</span></strong><div>Estimated current weight<small>Live weight requires a verified price</small></div></div><div class="weight-track" role="img" aria-label="INTU estimated weight 47.61 percent, hard maximum 12 percent" id="weight-chart"><div id="weight-fill"></div><span class="target-marker"></span><span class="max-marker"></span></div><div class="track-labels"><span>0%</span><span>Target 6–8%</span><span>Max 12%</span><span>100%</span></div><div class="allocation-stats"><div><span>Target allocation</span><strong>$240K–$320K</strong></div><div><span>Hard maximum</span><strong>$480,000</strong></div><div><span>Above hard max · est.</span><strong class="red" id="over-max">$1,424,290</strong></div><div><span>Remaining add capacity</span><strong>$0 <small class="red">NO ADD</small></strong></div></div><p class="small muted">Capacity = max(0, hard maximum − position value), subject to company, sector, and risk gates. Capacity is a ceiling, not an instruction to buy.</p></article>
+        <article class="panel exposure-panel"><div class="panel-title"><h3>Portfolio visibility</h3><span class="pill caution">PARTIAL HOLDINGS</span></div><div class="donut-layout"><div class="donut" id="portfolio-donut" role="img" aria-label="47.61 percent known INTU estimate, 52.39 percent unclassified"><div><strong>1</strong><span>known holding</span></div></div><div class="donut-legend"><div><span class="dot red-dot"></span><span>INTU <small>Known holding · estimate</small></span><strong id="known-percent">47.61%</strong></div><div><span class="dot gray-dot"></span><span>Unclassified remainder<small>Not assumed to be cash</small></span><strong id="unknown-percent">52.39%</strong></div></div></div><div class="inline-note">Other holdings have not been supplied. Sector totals, correlated exposure, and total portfolio P/L remain incomplete.</div><div class="panel-title lower-title"><h3>Economic Risk Bucket</h3><span class="pill negative">CONCENTRATED</span></div><p class="bucket-name">SMB / Financial Workflow Software</p><p class="small muted">INTU belongs to the broader Software / SaaS bucket. NVDA, AVGO, CLS, and CRDO share AI infrastructure capex risk even across different industry labels.</p></article></div>
+        <div class="panel exposure-table"><div class="panel-title"><h3>Sector / Risk Bucket exposure</h3><span class="small muted">Prior ARGUS overlay policy · 03 Sep 2026</span></div><div class="table-scroll" tabindex="0" role="region" aria-label="Sector and risk exposure"><table><thead><tr><th>Economic Risk Bucket</th><th>Known exposure · est.</th><th>Target</th><th>Hard max</th><th>Concentration status</th></tr></thead><tbody id="risk-rows"></tbody></table></div><div class="board-foot"><span><b class="green">● Green</b> within target · <b class="amber">● Orange</b> above target / incomplete · <b class="red">● Red</b> above hard max</span><span>Risk buckets are not GICS sectors; targets are ranges, not a completed allocation.</span></div></div>
+      </section>
+      <section id="radar" aria-labelledby="radar-title"><div class="section-heading"><div><div class="eyebrow">04 / SIGNALS, NOT ORDERS</div><h2 id="radar-title">AI Infrastructure Event Radar</h2></div><span class="pill caution">SHADOW RESEARCH</span></div><p class="section-intro">One shared AI-capex cycle. Three distinct evidence gates. Prior research status; new events require verification.</p><div id="radar-cards" class="radar-grid"></div></section>
+      <section id="proof" aria-labelledby="proof-title"><div class="section-heading"><div><div class="eyebrow">05 / EVIDENCE BEFORE AUTHORIZATION</div><h2 id="proof-title">Forward Proof / System Status</h2></div><span class="pill negative">AUTHORIZATION BLOCKED</span></div><div class="panel proof-panel"><div class="proof-intro"><span class="proof-icon" aria-hidden="true">◈</span><h3>The baseline stays locked.<br>The evidence moves forward.</h3><p>Historical decisions are preserved. Portfolio overlays and new research never rewrite the forward test.</p><span class="pill baseline">V10.25 · READ ONLY</span></div><div class="proof-content"><div class="proof-metrics"><div><strong>60<span>/100</span></strong><small>Raw forward locks</small></div><div><strong>40.65</strong><small>Correlation-adjusted N</small></div><div><strong>0<span>/30</span></strong><small>Resolved / minimum gate</small></div></div><div class="proof-progress"><span>Resolved forward evidence</span><strong>0%</strong><div><span></span></div></div><div class="proof-bottom"><div><small>First 6M checkpoint</small><strong>01 Mar 2027</strong></div><div><small>Required proof score</small><strong>≥60%</strong></div><div><small>Live market feed</small><strong class="amber">Not connected</strong></div></div><p class="small muted">Imported prior ARGUS proof snapshot (03 Sep 2026), not a live counter. Historical diagnostic results do not substitute for clean forward outcomes. No trading or API execution is enabled.</p></div></div></section>
+      <footer><a class="footer-brand" href="#main">ARGUS <span>Clarity before capital.</span></a><span>V10.25 locked research · V10.34 portfolio overlay</span><button class="text-button" data-open="data">Data & methodology ↗</button></footer>
+    </main>
+  </div>
+  <dialog id="research-dialog" aria-labelledby="dialog-title"><div class="dialog-header"><div><div id="dialog-eyebrow" class="eyebrow accent"></div><h2 id="dialog-title"></h2></div><button id="close-dialog" class="close-button" aria-label="Close panel">×</button></div><div id="dialog-content" class="dialog-content"></div></dialog>
+  <noscript><div class="noscript">Enable JavaScript to view the decision board and company research. Live prices are unavailable; the supplied INTU portfolio decision is DO NOT ADD.</div></noscript>
 </body>
 </html>
