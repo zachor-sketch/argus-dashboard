@@ -3,6 +3,8 @@ const {chromium} = require(process.argv[2] || 'playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 (async()=>{
+  const server=require('../scripts/serve.cjs');
+  await new Promise(r=>server.listening?r():server.once('listening',r));
   const browser=await chromium.launch({headless:true,channel:'msedge'});
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const errors=[];
@@ -11,10 +13,14 @@ const fs = require('node:fs');
   const response=await page.goto(process.argv[3] || 'http://127.0.0.1:4173');
   assert.equal(response.status(),200);
   await page.locator('.stock-card').last().waitFor();
-  assert.equal(await page.title(),'ARGUS Dashboard');
+  assert.equal(await page.title(),'ARGUS V2 Dashboard');
   assert.equal(await page.locator('#board-rows tr').count(),4);
   assert.equal(await page.locator('.stock-card').count(),4);
-  assert.equal(await page.locator('.radar-card').count(),3);
+  assert.equal(await page.locator('.radar-card').count(),8);
+  assert.equal(await page.locator('#universe tbody tr').count(),100);
+  assert.equal(await page.locator('[data-v2-engine]').count(),4);
+  assert.equal(await page.locator('html').getAttribute('lang'),'he');
+  assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
   assert.match(await page.locator('#current-weight').innerText(),/47.61%/);
   const locked=await page.locator('#board-rows').innerText();
   fs.mkdirSync('test-results',{recursive:true});
@@ -26,8 +32,9 @@ const fs = require('node:fs');
       assert.equal(await page.locator('dialog').isVisible(),true);
       assert.ok((await page.locator('#dialog-content').innerText()).length>100);
       if(pane==='engine'){
-        await page.getByText('Valuation ensemble · Bear / Base / Bull',{exact:true}).click();
-        assert.equal(await page.getByText('Scenario probabilities',{exact:true}).isVisible(),true);
+        assert.ok((await page.locator('#dialog-content').innerText()).includes('V10.25'));
+        assert.ok((await page.locator('#dialog-content').innerText()).includes('ציון גולמי'));
+        assert.equal((await page.locator('#dialog-content').innerText()).includes('unavailable'),false);
       }
       if(ticker==='INTU'&&pane==='holdings')await page.screenshot({path:'test-results/holdings-panel.png'});
       await page.keyboard.press('Escape');
@@ -52,7 +59,7 @@ const fs = require('node:fs');
   assert.equal(await page.locator('#board-rows').innerText(),locked);
   await page.locator('#valuation-basis').selectOption('lock');
   await page.locator('[data-open="data"]').first().click();
-  assert.match(await page.locator('#dialog-content').innerText(),/No live market-price provider/);
+  assert.match(await page.locator('#dialog-content').innerText(),/0c6c0ddd63284379/);
   await page.locator('#close-dialog').click();
   for(const width of [1920,1440,1100,1024,768,390,320]){
     await page.setViewportSize({width,height:900});
@@ -69,7 +76,36 @@ const fs = require('node:fs');
       await page.keyboard.press('Escape');
     }
   }
+  await page.setViewportSize({width:1440,height:1000});
+  await Promise.all([page.waitForNavigation(),page.locator('[data-lang="en"]').click()]);
+  await page.locator('#universe tbody tr').first().waitFor();
+  assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert.equal(await page.locator('html').getAttribute('dir'),'ltr');
+  assert.equal(await page.locator('#universe tbody tr').count(),100);
+  for(const width of [1440,390]){
+    await page.setViewportSize({width,height:900});
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,'English layout overflow');
+    await page.screenshot({path:'test-results/english-'+width+'.png',fullPage:true});
+  }
+  await page.setViewportSize({width:1440,height:1000});
+  await page.locator('#stock-INTU [data-pane="forecast"]').click();
+  await page.locator('#user-notes').fill('Local forecast note for persistence test');
+  await page.keyboard.press('Escape');
+  await page.locator('#stock-INTU [data-pane="forecast"]').click();
+  assert.equal(await page.locator('#user-notes').inputValue(),'Local forecast note for persistence test');
+  await page.keyboard.press('Escape');
+  await page.locator('#portfolio-form [name="shares-0"]').fill('5301');
+  await Promise.all([page.waitForNavigation(),page.locator('#portfolio-form button:not([type="button"])').click()]);
+  await page.locator('#universe tbody tr').first().waitFor();
+  assert.equal(await page.locator('#portfolio-form [name="shares-0"]').inputValue(),'5301');
+  await page.locator('#portfolio-form [name="shares-0"]').fill('5300');
+  await Promise.all([page.waitForNavigation(),page.locator('#portfolio-form button:not([type="button"])').click()]);
+  await page.locator('#universe tbody tr').first().waitFor();
+  await Promise.all([page.waitForNavigation(),page.locator('[data-lang="he"]').click()]);
+  await page.locator('#universe tbody tr').first().waitFor();
+  assert.equal(await page.locator('html').getAttribute('dir'),'rtl');
   assert.deepEqual(errors,[]);
   await browser.close();
-  console.log('PASS: 24 research panels, nested engine details, focus return, search/filter, immutable baseline, allocation estimates, data status, seven responsive widths; no runtime errors.');
+  server.close();
+  console.log('PASS: V2 Hebrew RTL / English LTR, 24 legacy panels, full engine access, 100-company universe, AI chain, immutable baseline, allocation estimates, seven responsive widths; no runtime errors.');
 })().catch(error=>{console.error(error);process.exit(1);});

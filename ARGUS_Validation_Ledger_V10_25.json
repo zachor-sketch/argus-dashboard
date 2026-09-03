@@ -1,0 +1,636 @@
+{
+  "protocol": {
+    "version": "V10.25",
+    "launched": "2026-09-01",
+    "targetLockedDecisions": 100,
+    "promotionGatePct": 60,
+    "minimumResolvedHoldout": 30,
+    "scoreWeights": {
+      "fundamentalValueOutcome": 0.6,
+      "hardGateAccuracy": 0.25,
+      "priceAlpha": 0.15
+    },
+    "errorCosts": {
+      "FALSE_BUY": 5.0,
+      "FALSE_HOLD": 3.0,
+      "FALSE_NO_ACTION": 1.5,
+      "FALSE_SELL": 2.5
+    },
+    "errorTaxonomy": [
+      "VALUATION",
+      "BUSINESS_UNDERSTANDING",
+      "MACRO_REGIME",
+      "MANAGEMENT_CAPITAL_ALLOCATION",
+      "ACCOUNTING_FORENSIC",
+      "DATA_QUALITY",
+      "TIMING",
+      "OVERCONFIDENCE",
+      "PORTFOLIO_SIZING"
+    ],
+    "historicalReplay": {
+      "status": "HISTORICAL 100/100 CORE-RECONSTRUCTED — DIAGNOSTIC ONLY; HISTORICAL HOLDOUT CONTAMINATED",
+      "targetCases": 100,
+      "resolvedCases": 100,
+      "rules": [
+        "Information-time lock: only evidence published by the replay date may be used.",
+        "No later filings, revised guidance or future price paths may enter the model.",
+        "Decision thresholds and success criteria are frozen before revealing the forward period.",
+        "Model changes are tested on development history first and promoted only if holdout performance is not degraded."
+      ],
+      "lockedCases": 20,
+      "coreRevealedCases": 20,
+      "fullEligibleCases": 0,
+      "developmentCoreScorePct": 89.9,
+      "passPartialFail": {
+        "PASS": 13,
+        "PARTIAL": 4,
+        "FAIL": 3
+      },
+      "selectionBiasWarning": "This first 20-case batch is curated across known archetypes and is therefore Development evidence, not a random or sealed holdout. The next 80 historical cases must be stratified/pre-registered from the existing universe before reveal.",
+      "selectedCases": 100,
+      "developmentCases": 60,
+      "validationCases": 20,
+      "holdoutCases": 20,
+      "developmentRevealed": 20,
+      "developmentQueued": 40,
+      "validationSealed": 20,
+      "holdoutSealed": 20,
+      "selectionLockFile": "ARGUS_Historical80_CaseSelection_Lock_V10_20.json",
+      "selectionMasterSha256": "a9d66863404ffd36056aa4319c4173ad62fe5faf6dcb771acac8c67d90a39b07"
+    },
+    "benchmarks": {
+      "INTU": [
+        "SPY",
+        "IGV"
+      ],
+      "NVDA": [
+        "SPY",
+        "SOXX"
+      ],
+      "FIS": [
+        "SPY",
+        "XLK"
+      ],
+      "CRM": [
+        "SPY",
+        "IGV"
+      ]
+    },
+    "governance": {
+      "rule": "No engine rule is promoted because it sounds sensible. Every change must have a version, rationale, expected failure mode and holdout comparison.",
+      "gate": "Automation/API authorization remains blocked until the pre-registered out-of-sample framework reaches at least 60% on forward fundamental/value outcomes and hard-gate accuracy.",
+      "antiOverfit": "A rule that improves development/backtest performance but weakens holdout is rejected."
+    },
+    "forwardProgram": {
+      "status": "FORWARD COHORT 01 LOCKED — 30/100 CLEAN DECISIONS; 0 RESOLVED",
+      "cleanForwardLocked": 30,
+      "newUniqueLocksInFC01": 26,
+      "carriedExistingLocks": 4,
+      "resolved": 0,
+      "target": 100,
+      "minimumResolvedForGate": 30,
+      "promotionGatePct": 60,
+      "first6mDue": "2027-03-01",
+      "cohortId": "FC01",
+      "cohortSha256": "4809893161a27af500d7c6e4c5a67b41a853614134f55083b50c9e726cdee080",
+      "shadowSha256": "9697727bf855047003c60241a0b02dbf03f567836e410887d9d807dbaafb219a",
+      "duplicatePolicy": "INTU, NVDA, FIS and CRM were already clean-locked on 2026-09-01. They are incorporated into FC01 for one coherent 30-name cohort but are not counted as new locks.",
+      "authorizationEligible": false,
+      "reason": "No clean forward outcome has reached a pre-registered horizon; historical diagnostics remain ineligible after contamination audit."
+    },
+    "independenceOverlay": {
+      "effectiveObservationEstimate": 40.65,
+      "rawForwardLocks": 60,
+      "effectiveObservationGoal": 100,
+      "rule": "Accuracy and resolved-outcome summaries must report correlation-adjusted weights; raw rows are never described as independent trials."
+    },
+    "eventMonitoring": {
+      "status": "ACTIVE — DAY-0 60/60 SCAN COMPLETE",
+      "day0QueueFile": "ARGUS_Day0_Event_Queue_V10_25.json",
+      "scanCutoff": "2026-09-01T19:51:03+03:00",
+      "companiesScanned": 60,
+      "snapshotRequired": 0,
+      "killThesis": 0,
+      "newSnapshotsCreated": 0,
+      "queueSha256": "c63dcb4f922253ea3c4cfcb1e55513d9539c556a9d51543e3acc333720842bfd",
+      "nextMode": "DAILY 03:00 ASIA/JERUSALEM + event-driven review"
+    }
+  },
+  "lockedBaselines": {
+    "INTU": {
+      "id": "ARGUS-20260901-INTU-V1017",
+      "lockedAt": "2026-09-01T13:30:00+03:00",
+      "sourceVersion": "V10.17 LIVE",
+      "decision": "BUY",
+      "action": "BUY / ADD",
+      "price": 359.3,
+      "engineScore": 82,
+      "intrinsicValueRange": "$385–475",
+      "expectedValue": 425,
+      "thesis": "Owner cash compounding remains durable despite FY27 growth reset; valuation offers enough protection if GBS and TurboTax moat hold.",
+      "forwardTests": [
+        {
+          "horizon": "6M",
+          "due": "2027-03-01",
+          "success": "GBS remains near the FY27 13–14% guide or the shortfall is clearly cyclical; owner cash/share remains healthy; no structural TurboTax pricing impairment.",
+          "failure": "Structural GBS slowdown plus weaker owner cash/share, or a verified policy/AI moat break."
+        },
+        {
+          "horizon": "12M",
+          "due": "2027-09-01",
+          "success": "Per-share owner earnings/FCF supports at least the lower end of the locked IV range and capital allocation remains per-share accretive.",
+          "failure": "Normalized IV falls >20% from the locked base primarily from structural business deterioration rather than discount-rate noise."
+        },
+        {
+          "horizon": "24M",
+          "due": "2028-09-01",
+          "success": "Economic engine remains intact and normalized per-share value compounds positively from the locked baseline.",
+          "failure": "Permanent moat erosion or capital allocation destroys per-share value despite reported growth."
+        }
+      ],
+      "sha256": "936f6e0ebed80f1dfb7d272a71ef3091d7a6212372fc4eb555fc3d52fa84b8a0"
+    },
+    "NVDA": {
+      "id": "ARGUS-20260901-NVDA-V1017",
+      "lockedAt": "2026-09-01T13:30:00+03:00",
+      "sourceVersion": "V10.17 LIVE",
+      "decision": "WAIT",
+      "action": "NO ACTION",
+      "price": 220.78,
+      "engineScore": 66,
+      "intrinsicValueRange": "$205–290",
+      "expectedValue": 249,
+      "thesis": "Business quality is exceptional, but normalized-cycle duration and AI customer ROI do not yet justify the risk-adjusted entry gate.",
+      "forwardTests": [
+        {
+          "horizon": "6M",
+          "due": "2027-03-01",
+          "success": "Revenue/margins remain strong without evidence that customer ROI or platform share is deteriorating; WAIT is validated if price still embeds more duration than evidence supports.",
+          "failure": "A much stronger normalized-ROI case emerges while ARGUS remains inactive at an attractive price without updating its evidence gate."
+        },
+        {
+          "horizon": "12M",
+          "due": "2027-09-01",
+          "success": "Normalized FCF and platform share can be reconciled to the locked risk-adjusted valuation; no permanent export/TAM impairment is ignored.",
+          "failure": "ARGUS materially underestimates durable normalized cash generation and misses a clearly attractive entry because of excessive cycle pessimism."
+        },
+        {
+          "horizon": "24M",
+          "due": "2028-09-01",
+          "success": "Decision quality is judged on normalized business value and alpha versus SOXX/SPY, not merely whether the stock rose.",
+          "failure": "Persistent false-negative evidence: business value compounds far above the locked model with no corresponding rise in permanent-loss risk."
+        }
+      ],
+      "sha256": "2f069f4e982a1dcd41474be765109e14e31112dde12eb84a607bc16754bf8139"
+    },
+    "FIS": {
+      "id": "ARGUS-20260901-FIS-V1017",
+      "lockedAt": "2026-09-01T13:30:00+03:00",
+      "sourceVersion": "V10.17 LIVE",
+      "decision": "PROVE IT",
+      "action": "NO ACTION",
+      "price": 40.77,
+      "engineScore": 52,
+      "intrinsicValueRange": "$48–60",
+      "expectedValue": 54,
+      "thesis": "Cheapness is insufficient; the investment must prove that FCF reaches equity via deleveraging and disciplined capital allocation.",
+      "forwardTests": [
+        {
+          "horizon": "6M",
+          "due": "2027-03-01",
+          "success": "Reported debt/net leverage declines and FCF reconciliation remains clean; no material debt-funded M&A before repair.",
+          "failure": "Leverage stalls/rises, FCF exclusions expand, or management resumes acquisition-led balance-sheet risk."
+        },
+        {
+          "horizon": "12M",
+          "due": "2027-09-01",
+          "success": "Clear progress toward ~2.8x leverage with pro-forma growth sufficient to support normalized FCF.",
+          "failure": "Value-trap pattern: low multiple persists because growth/FCF-to-equity weakens or leverage remains elevated."
+        },
+        {
+          "horizon": "24M",
+          "due": "2028-09-01",
+          "success": "If upgraded later, the upgrade must be traceable to reported deleveraging evidence and positive per-share value creation.",
+          "failure": "ARGUS upgrades on valuation alone before the capital-allocation gate is actually repaired."
+        }
+      ],
+      "sha256": "d11275b6ab0b658d4d2d02e1a062d0c3d87cb43fe7c140a9fbff7fd968d03bcf"
+    },
+    "CRM": {
+      "id": "ARGUS-20260901-CRM-V1017",
+      "lockedAt": "2026-09-01T13:30:00+03:00",
+      "sourceVersion": "V10.17 LIVE",
+      "decision": "WATCH",
+      "action": "NO ACTION",
+      "price": 261.61,
+      "engineScore": 71,
+      "intrinsicValueRange": "$240–300",
+      "expectedValue": 269,
+      "thesis": "Recurring demand is solid, but organic AI monetization and per-share FCF must outrun acquisition contribution, SBC and the more levered capital structure.",
+      "forwardTests": [
+        {
+          "horizon": "6M",
+          "due": "2027-03-01",
+          "success": "cRPO stays roughly >=12% and paid AI usage begins to appear in organic metrics; acquisition contribution is separately reconciled.",
+          "failure": "Headline growth remains dependent on acquisitions/investment gains while organic per-share economics weaken."
+        },
+        {
+          "horizon": "12M",
+          "due": "2027-09-01",
+          "success": "FCF/share improves after SBC and debt effects, with debt stable or falling and paid AI economics measurable.",
+          "failure": "Seat compression, SBC/M&A or leverage prevent per-share value compounding despite product adoption."
+        },
+        {
+          "horizon": "24M",
+          "due": "2028-09-01",
+          "success": "Normalized organic value compounds and any BUY upgrade would have been supported by pre-existing evidence, not hindsight.",
+          "failure": "ARGUS confuses AI narrative/headline EPS with durable organic owner economics."
+        }
+      ],
+      "sha256": "ad80cf822da8cac01a70e8ff2b4696d20e67148b1b017d6857ce31f5ee781d16"
+    }
+  },
+  "modelGovernanceLog": [
+    {
+      "from": "V10.17",
+      "to": "V10.18",
+      "date": "2026-09-01",
+      "changeType": "VALIDATION ARCHITECTURE",
+      "decisionImpact": "NONE — V10.17 decisions are preserved as locked baselines",
+      "rationale": "Require falsifiable forward tests, error-cost accounting and holdout proof before claiming model improvement.",
+      "promotionTest": "No investment rule changed in V10.18; future changes require development evidence plus non-degrading holdout results."
+    },
+    {
+      "from": "V10.18",
+      "to": "V10.19",
+      "date": "2026-09-01",
+      "changeType": "DEVELOPMENT REPLAY EVIDENCE",
+      "decisionImpact": "NONE — no investment rule promoted",
+      "rationale": "Reveal and score the first 20 information-time-locked historical development cases; identify failure patterns without changing rules on trigger cases.",
+      "promotionTest": "All three proposed improvements remain PROPOSED until tested outside their triggering cases and later against sealed validation/holdout."
+    },
+    {
+      "from": "V10.19",
+      "to": "V10.20",
+      "date": "2026-09-01",
+      "changeType": "HISTORICAL CASE-SELECTION LOCK",
+      "decisionImpact": "NONE — no engine rule changed",
+      "rationale": "Lock all remaining historical cases and cutoffs before reconstructing snapshots, preventing outcome-driven case substitution.",
+      "promotionTest": "Development proposals remain unpromoted; Validation and Holdout cases remain sealed."
+    },
+    {
+      "from": "V10.21",
+      "to": "V10.22",
+      "date": "2026-09-01",
+      "changeType": "HISTORICAL VALIDATION/HOLDOUT COMPLETION + INTEGRITY AUDIT",
+      "decisionImpact": "NONE — current live investment decisions unchanged",
+      "rationale": "Finish all 100 historical core tests, explicitly flag prior-artifact contamination, and fail closed on authorization.",
+      "promotionTest": "No proposal promoted; all candidate rules remain shadow-only until clean forward evidence."
+    },
+    {
+      "from": "V10.22",
+      "to": "V10.23",
+      "date": "2026-09-01",
+      "changeType": "FORWARD PROOF EXPANSION",
+      "decisionImpact": "26 new clean forward locks; 4 existing locks incorporated without double-counting; no production rule promoted.",
+      "rationale": "Create a diversified clean forward cohort with frozen 6/12/24M tests and a separate shadow engine for unpromoted historical proposals.",
+      "promotionTest": "Official authorization remains blocked until at least 30 clean forward outcomes resolve and pre-registered proof score is >=60%; target 100 locked decisions."
+    },
+    {
+      "from": "V10.23",
+      "to": "V10.24",
+      "date": "2026-09-01",
+      "changeType": "FORWARD COHORT + INDEPENDENCE + EVENT-DRIVEN PROTOCOL",
+      "decisionImpact": "30 new clean forward baselines; no historical/shadow rule promoted",
+      "rationale": "Increase sector breadth while preventing same-date/factor correlation from masquerading as independent evidence; formalize immutable event-driven updates.",
+      "promotionTest": "No authorization until original clean-forward gate resolves; effective N is an additional integrity overlay."
+    },
+    {
+      "from": "V10.24",
+      "to": "V10.25",
+      "date": "2026-09-01",
+      "changeType": "DAY-0 LIVE MONITORING ACTIVATION",
+      "decisionImpact": "NONE — 0 qualifying post-lock events; all 60 parent decisions preserved",
+      "rationale": "Run the first live evidence queue under EDL-01 and fail closed on same-day items without verified post-lock timestamps.",
+      "promotionTest": "No model rule promoted; no new independent observation counted."
+    }
+  ],
+  "historicalDevelopmentReplay20": {
+    "ledgerFile": "ARGUS_Blind_Historical_Ledger_V10_19.json",
+    "summary": {
+      "phase": "Development",
+      "selectedBeforeReveal": 20,
+      "preRevealHashesPreserved": true,
+      "coreRevealed": 20,
+      "officialAccuracyEligible": 0,
+      "statusCounts": {
+        "PASS": 13,
+        "PARTIAL": 4,
+        "FAIL": 3
+      },
+      "avgFundamentalScore": 88.8,
+      "avgHardGateScore": 92.5,
+      "coreScorePct": 89.9,
+      "diagnosticWithPriceSignalPct": 85.8,
+      "officialProofScore": null,
+      "warning": "Development replay only. Price/benchmark component is a secondary diagnostic and is not fully reconciled; these cases cannot satisfy the 60% holdout promotion gate."
+    },
+    "failureReview": {
+      "failurePatternCounts": {
+        "TIMING": 2,
+        "VALUATION": 3,
+        "MACRO_REGIME": 2
+      },
+      "primaryFinding": "The dominant weakness is false-negative conservatism: ARGUS can over-penalize valuation or wait too long for re-proof when high-quality economics are accelerating or a depressed cycle is inflecting.",
+      "secondaryFinding": "Hard-gate discipline performed well on genuine structural/fatal-unknown cases (e.g., Boeing, PayPal, Intel, IFF), so the evidence argues against weakening hard gates globally.",
+      "selectionBiasWarning": "This first 20-case batch is curated across known archetypes and is therefore Development evidence, not a random or sealed holdout. The next 80 historical cases must be stratified/pre-registered from the existing universe before reveal.",
+      "proposedImprovements": [
+        {
+          "id": "PI-01",
+          "status": "PROPOSED — NOT PROMOTED",
+          "pattern": "VALUATION false negatives",
+          "rule": "For elite compounders, require reverse-valuation evidence of truly extreme expectations before NO ACTION solely because the multiple is premium; explicitly compare moat duration and reinvestment runway.",
+          "triggerCases": [
+            "TSLA",
+            "CRM",
+            "COST"
+          ],
+          "validationNeeded": "Test on non-triggering premium-quality cases before any engine rule changes."
+        },
+        {
+          "id": "PI-02",
+          "status": "PROPOSED — NOT PROMOTED",
+          "pattern": "Cycle inflection underreaction",
+          "rule": "In deeply depressed cyclicals with strong survival, supply discipline and replacement economics, allow a small starter allocation before full earnings normalization instead of binary zero capital.",
+          "triggerCases": [
+            "XOM"
+          ],
+          "validationNeeded": "Test on at least 10 non-triggering cyclical cases including failures/value traps."
+        },
+        {
+          "id": "PI-03",
+          "status": "PROPOSED — NOT PROMOTED",
+          "pattern": "Post-shock re-entry delay",
+          "rule": "After a thesis shock and major price reset, re-underwrite from the new price and normalized economics rather than anchoring to the pre-shock thesis break.",
+          "triggerCases": [
+            "NFLX"
+          ],
+          "validationNeeded": "Test on multiple post-crash recoveries and permanent impairments."
+        }
+      ]
+    }
+  },
+  "historicalCaseSelectionLock80": {
+    "file": "ARGUS_Historical80_CaseSelection_Lock_V10_20.json",
+    "counts": {
+      "priorDevelopmentReplays": 20,
+      "newDevelopmentSelected": 40,
+      "validationSelected": 20,
+      "holdoutSelected": 20,
+      "historicalProgramSelectedTotal": 100
+    },
+    "masterSelectionSha256": "a9d66863404ffd36056aa4319c4173ad62fe5faf6dcb771acac8c67d90a39b07",
+    "selectionRule": "40 Development cases selected deterministically by SHA-256 rank from remaining Development universe after excluding tickers already used in Blind20; all 20 Validation and all 20 Holdout companies are included. Cutoffs assigned deterministically from a fixed trading-date pool with minimum-listing overrides before any outcome reconstruction."
+  },
+  "historicalFinalAudit": {
+    "version": "V10.22",
+    "completedAt": "2026-09-01T18:57:00+03:00",
+    "historicalProgram": {
+      "selected": 100,
+      "coreReconstructed": 100,
+      "development": {
+        "n": 60,
+        "pass": 42,
+        "partial": 12,
+        "fail": 6,
+        "fundamentalDiagnosticPct": 86.7,
+        "hardGateDiagnosticPct": 92.4
+      },
+      "validation": {
+        "n": 20,
+        "cases": 20,
+        "statusCounts": {
+          "PASS": 15,
+          "PARTIAL": 4,
+          "FAIL": 1
+        },
+        "avgFundamentalCorrectnessPct": 86.3,
+        "avgHardGateCorrectnessPct": 94.5,
+        "officialAccuracyEligible": 0
+      },
+      "historicalHoldout": {
+        "n": 20,
+        "cases": 20,
+        "statusCounts": {
+          "PASS": 14,
+          "PARTIAL": 5,
+          "FAIL": 1
+        },
+        "avgFundamentalCorrectnessPct": 86.7,
+        "avgHardGateCorrectnessPct": 94.7,
+        "officialAccuracyEligible": 0
+      },
+      "total": {
+        "n": 100,
+        "pass": 71,
+        "partial": 21,
+        "fail": 8,
+        "fundamentalDiagnosticPct": 86.6,
+        "hardGateDiagnosticPct": 93.3
+      }
+    },
+    "integrityAudit": {
+      "historicalHoldoutPristine": false,
+      "finding": "Prior ARGUS project files created before this batch contain historical outcomes/frozen calls for overlapping companies and mechanisms. Therefore H061–H100 cannot be represented as pristine blind out-of-sample proof.",
+      "treatment": "All 100 historical cases remain useful diagnostics/robustness evidence, but Validation/Holdout receive zero official authorization eligibility.",
+      "oldGateStatus": "Any older artifact titled Authorization Gate PASSED is superseded for the current V10.22 proof standard and cannot authorize API/autonomous deployment.",
+      "selectionLockPreserved": "a9d66863404ffd36056aa4319c4173ad62fe5faf6dcb771acac8c67d90a39b07",
+      "validationDecisionLock": "56281d93e4fa42cee44f664209d7f2cad06bdd644f675e02c5344359ca1c03da",
+      "holdoutDecisionLock": "eafee031a86355c481198c81f9241fa05b4cf35ed264ab29906b65b6e8751a96"
+    },
+    "marketAlphaAudit": {
+      "status": "FAIL-CLOSED / NOT OFFICIALLY SCORED",
+      "reason": "Exact benchmark total-return reconciliation for every historical case is not needed to adjudicate the official gate after the integrity failure; no unverified price return is backfilled.",
+      "scoreContributionPct": 0,
+      "policy": "Fundamental and hard-gate outcomes remain primary. Historical price/alpha may be completed later as a secondary diagnostic, but it cannot repair a contaminated holdout."
+    },
+    "forwardHoldout": {
+      "status": "ACTIVE — CLEAN, UNRESOLVED",
+      "lockedDecisions": 4,
+      "tickers": [
+        "INTU",
+        "NVDA",
+        "FIS",
+        "CRM"
+      ],
+      "resolved": 0,
+      "first6mDue": "2027-03-01",
+      "minimumResolvedRequired": 30,
+      "targetLockedDecisions": 100,
+      "promotionGatePct": 60,
+      "authorizationEligible": false,
+      "reason": "Only 4 clean forward decisions are locked and none has reached a pre-registered outcome horizon."
+    },
+    "modelImprovementReview": [
+      {
+        "id": "PI-01",
+        "name": "Premium compounder expectations rule",
+        "status": "SHADOW TEST ONLY — NOT PRODUCTION",
+        "developmentSupport": [
+          "LLY",
+          "TT",
+          "ETN"
+        ],
+        "diagnosticValidationSupport": [
+          "NVO",
+          "ISRG",
+          "HON"
+        ],
+        "guardrail": "No margin-of-safety waiver; require reverse expectations plus moat/reinvestment duration."
+      },
+      {
+        "id": "PI-02",
+        "name": "Cycle inflection starter rule",
+        "status": "SHADOW TEST ONLY — NOT PRODUCTION",
+        "developmentSupport": [
+          "DHT",
+          "OXY",
+          "SLB"
+        ],
+        "diagnosticHoldoutSupport": [
+          "FRO"
+        ],
+        "counterexample": [
+          "UNP"
+        ],
+        "guardrail": "Starter only when survival, supply discipline and independent leading indicators all pass."
+      },
+      {
+        "id": "PI-03",
+        "name": "Post-shock re-underwrite / re-entry",
+        "status": "SHADOW TEST ONLY — NOT PRODUCTION",
+        "diagnosticValidationSupport": [
+          "NFLX"
+        ],
+        "guardrail": "Re-underwrite from new price only after original failure mechanism objectively improves."
+      },
+      {
+        "id": "PI-04",
+        "name": "Acquisition-cohort ROIC",
+        "status": "PROPOSED / SHADOW",
+        "developmentSupport": [
+          "TRPZ"
+        ],
+        "guardrail": "Separate organic growth, acquired growth, goodwill/debt and cohort ROIC before crediting serial acquisition."
+      }
+    ],
+    "authorization": {
+      "state": "BLOCKED",
+      "officialProofScore": null,
+      "historicalDiagnosticScoreEligible": false,
+      "forwardProofResolved": 0,
+      "nextUnlockCondition": "At least 30 clean forward holdout outcomes resolved and >=60% pre-registered proof score, with 100 locked decisions target and no integrity failure."
+    },
+    "testMatrix": [
+      {
+        "test": "Historical case selection pre-lock",
+        "status": "PASS",
+        "result": "100/100 case identities and cutoffs fixed under selection SHA."
+      },
+      {
+        "test": "Information-time reconstruction",
+        "status": "PASS WITH INTEGRITY CAVEAT",
+        "result": "Core snapshots reconstructed to cutoff logic; prior project artifacts create model-level outcome contamination."
+      },
+      {
+        "test": "Decision/thesis/kill-trigger locking",
+        "status": "PASS DIAGNOSTIC",
+        "result": "Validation and historical-holdout decisions hashed before current-turn reveal, but not pristine because prior ARGUS artifacts existed."
+      },
+      {
+        "test": "Fundamental outcome scoring",
+        "status": "COMPLETE",
+        "result": "100/100 core cases scored; diagnostic average 86.6%."
+      },
+      {
+        "test": "Hard-gate accuracy",
+        "status": "COMPLETE",
+        "result": "100/100 core cases scored; diagnostic average 93.3%."
+      },
+      {
+        "test": "Error attribution / failure review",
+        "status": "COMPLETE",
+        "result": "71 PASS / 21 PARTIAL / 8 FAIL; recurring false-negative conservatism plus counterexamples retained."
+      },
+      {
+        "test": "Model-change governance",
+        "status": "PASS",
+        "result": "No candidate rule promoted from triggering/contaminated evidence; PI-01..PI-04 remain shadow-only."
+      },
+      {
+        "test": "Historical benchmark / alpha",
+        "status": "FAIL-CLOSED / NOT SCORED",
+        "result": "No unverified total-return series backfilled; 0 official contribution."
+      },
+      {
+        "test": "Historical out-of-sample integrity",
+        "status": "FAIL",
+        "result": "Prior ARGUS files contain overlapping historical outcomes; historical holdout invalid for authorization proof."
+      },
+      {
+        "test": "Calibration",
+        "status": "NOT ELIGIBLE YET",
+        "result": "Current historical decisions were not consistently locked with probability buckets; no retrospective probability fabrication."
+      },
+      {
+        "test": "Clean forward holdout",
+        "status": "ACTIVE / UNRESOLVED",
+        "result": "4 locked decisions, 0 resolved; first 6M checkpoint 2027-03-01."
+      },
+      {
+        "test": "60% authorization gate",
+        "status": "BLOCKED",
+        "result": "Official proof score is N/A until clean forward minimum sample resolves."
+      }
+    ]
+  },
+  "forwardCohort01": {
+    "cohortId": "FC01",
+    "lockedAt": "2026-09-01T19:24:36+03:00",
+    "cases": 30,
+    "newUniqueLocks": 26,
+    "carriedExisting": 4,
+    "masterCohortSha256": "4809893161a27af500d7c6e4c5a67b41a853614134f55083b50c9e726cdee080",
+    "shadowSha256": "9697727bf855047003c60241a0b02dbf03f567836e410887d9d807dbaafb219a",
+    "activeBuyOrStarter": [
+      "TSM",
+      "BRK.B",
+      "CB",
+      "PGR",
+      "INTU"
+    ],
+    "resolved": 0
+  },
+  "forwardCohort02": {
+    "status": "LOCKED CLEAN FORWARD",
+    "cohortFile": "ARGUS_Forward_Cohort02_V10_24.json",
+    "lockedAt": "2026-09-01T19:37:35+03:00",
+    "newUniqueLocks": 30,
+    "cleanForwardLockedTotal": 60,
+    "resolved": 0,
+    "masterCohortSha256": "f285f758696a926ffcd5ed363c697e90e09899f6da121abde1d1b98298de7274"
+  },
+  "correlationIndependenceEngine": {
+    "status": "ACTIVE",
+    "file": "ARGUS_Correlation_Independence_V10_24.json",
+    "rawForwardLocks": 60,
+    "effectiveObservationEstimate": 40.65,
+    "masterSha256": "83789cf5e59b29b3f8bfc7e874153c291f6203c66e1b4980f53e72c7d6377891"
+  },
+  "eventDrivenLockProtocol": {
+    "status": "ACTIVE",
+    "file": "ARGUS_Event_Driven_Protocol_V10_24.json",
+    "protocolSha256": "85d7c45c4f034c415a39d7b0bede040e61d036f093c684f396d3044c6a395722",
+    "rule": "A new snapshot is created only when new material evidence arrives. The parent snapshot remains immutable. Price movement alone never qualifies."
+  }
+}

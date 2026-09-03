@@ -5,8 +5,9 @@ const root = path.resolve(__dirname,'..');
 const base = 'https://zachor-sketch.github.io/argus-dashboard/';
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 (async()=>{
-  const results = await Promise.all(['index.html','app.js','data.js','styles.css','favicon.svg','og.png'].map(async file=>{
-    const response=await fetch(base+file,{signal:AbortSignal.timeout(20000),headers:{'Cache-Control':'no-cache'}});
+  const files=['index.html','app.js','app-v2.js','data.js','styles.css','favicon.svg','og.png','integrity-manifest.json',...['datasets','lib'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).filter(f=>f.endsWith('.js')).map(f=>dir+'/'+f))];
+  const results = await Promise.all(files.map(async file=>{
+    const response=await fetch(base+file+'?release=v2-'+Date.now(),{signal:AbortSignal.timeout(20000),headers:{'Cache-Control':'no-cache'}});
     if(!response.ok)return {file,status:response.status,match:false};
     const remote=Buffer.from(await response.arrayBuffer());
     const local=fs.readFileSync(path.join(root,file));

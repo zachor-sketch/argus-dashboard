@@ -7,3 +7,34 @@
 .table-scroll{position:relative}
 @media(max-width:360px){.metric>strong{font-size:22px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+/* ARGUS V2 extensions */
+#universe .table-scroll{max-height:560px;overflow:auto}
+#universe thead{position:sticky;top:0;z-index:2;background:#111d2b}
+#universe button,.form-panel button,.radar-card button,.validation-actions button,#shadow-layers,#source-events{background:#162436;border:1px solid #2b3e54;border-radius:7px;color:#dce6f5;padding:8px 12px;font:inherit;font-size:12px;cursor:pointer}
+#universe button:hover,.form-panel button:hover,.radar-card button:hover{background:#243c56}
+.source-note{color:#8f9fb2;border-inline-start:2px solid #527eae;padding:8px 12px;font-size:12px}
+#daily th,#daily td{padding:12px}
+#daily td:last-child{min-width:220px;max-width:320px;white-space:normal}
+html[dir="rtl"] .sidebar{left:auto;right:0;border-right:0;border-left:1px solid var(--border)}
+html[dir="rtl"] .workspace{margin-left:0;margin-right:230px}
+html[dir="rtl"] .sidebar nav a,html[dir="rtl"] .brand{text-align:right}
+html[dir="rtl"] table{text-align:right}
+.num,bdi,.ticker{direction:ltr;unicode-bidi:isolate}
+.lang-toggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.lang-toggle button{border:0;border-radius:0;background:transparent;color:var(--muted);padding:7px 10px}
+.lang-toggle button.active{background:var(--surface-3);color:var(--text)}
+.review-grid{display:grid;grid-template-columns:repeat(2,minmax(130px,1fr));gap:6px;min-width:290px}
+.review-item{display:flex;gap:6px;align-items:flex-start}.review-item b{font-size:13px}.review-item b.green{color:var(--green)}.review-item b.orange{color:var(--amber)}.review-item b.red{color:var(--red)}
+.review-item small{font-size:10px;line-height:1.35;color:var(--muted)}
+.form-panel{padding:22px;display:grid;gap:14px}.form-panel label{display:grid;gap:6px;color:var(--muted);font-size:12px}
+.form-panel input,.form-panel select,.form-panel textarea,#universe-search{background:var(--bg);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:9px;min-width:110px}
+.form-panel textarea{min-height:82px;resize:vertical}.form-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.split-grid{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:18px}.split-grid>.panel{padding:22px}
+.immutable-banner{border:1px solid rgba(79,142,247,.35);background:rgba(79,142,247,.08);color:var(--blue);padding:12px 14px;border-radius:8px;margin-bottom:16px}
+.source-object{display:grid;gap:8px}.source-pair{display:grid;grid-template-columns:minmax(120px,26%) 1fr;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.source-object details,.dialog-content>details,.source-record{border:1px solid var(--border);border-radius:8px;padding:10px;margin:8px 0}.source-object summary,.dialog-content>details>summary{cursor:pointer;font-weight:700}
+.source-value{white-space:pre-wrap;overflow-wrap:anywhere}.detail-table td{white-space:normal;min-width:120px}.validation-actions{margin-top:18px;padding-top:16px;border-top:1px solid var(--border)}
+#portfolio-editor{padding-top:30px}#portfolio-form table input{width:120px}#portfolio-form table input[name^="ticker"]{width:75px}
+#universe .panel{padding:0}#universe-search{min-width:min(100%,340px)}
+@media(max-width:900px){html[dir="rtl"] .workspace{margin-right:0}.split-grid{grid-template-columns:1fr}.review-grid{min-width:250px}}
+@media(max-width:520px){.source-pair{grid-template-columns:1fr}.review-grid{grid-template-columns:1fr;min-width:150px}}

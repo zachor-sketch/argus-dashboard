@@ -2,13 +2,16 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname,'..');
-const allowed = new Set(['index.html','styles.css','app.js','data.js','favicon.svg','og.png']);
-const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.png':'image/png'};
-http.createServer((req,res)=>{
+const allowed = new Set(['index.html','styles.css','app.js','app-v2.js','data.js','favicon.svg','og.png','integrity-manifest.json']);
+const types = {'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.json':'application/json; charset=utf-8','.svg':'image/svg+xml','.png':'image/png'};
+module.exports=http.createServer((req,res)=>{
   let name;
   try { name=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\//,'') || 'index.html'; } catch { res.writeHead(400).end(); return; }
-  if(!allowed.has(name)){res.writeHead(404).end('Not found');return;}
-  fs.readFile(path.join(root,name),(error,data)=>{
+  const safeModule=/^(datasets|lib)\/[a-z0-9_\-]+\.js$/.test(name);
+  if(!allowed.has(name)&&!safeModule){res.writeHead(404).end('Not found');return;}
+  const file=path.resolve(root,name);
+  if(!file.startsWith(root+path.sep)){res.writeHead(404).end('Not found');return;}
+  fs.readFile(file,(error,data)=>{
     if(error){res.writeHead(404).end('Not found');return;}
     res.writeHead(200,{'Content-Type':types[path.extname(name)],'Cache-Control':'no-store'});
     res.end(data);

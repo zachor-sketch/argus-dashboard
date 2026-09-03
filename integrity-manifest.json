@@ -1,0 +1,9 @@
+{
+  "canonicalBaselineSha256": "0c6c0ddd63284379e5da3f84ccfefe7b6a79850bd82ff6722586579104544415",
+  "sourceFiles": {
+    "ARGUS_Master_V10_25.html": "e8d541ae0ecf3b55ccff74ae2062e4206cba8d38781f8123fe980533a56c6eeb",
+    "ARGUS_Validation_Ledger_V10_25.json": "e147f7d235737285722c3fddb7760f820df4b01a196cfa09803fe94e71acf960",
+    "ARGUS_AI_Chain_Signal_V10_33.json": "9e37b9a996a3bd26f766a0aae131806385119bee71d5ec0b55c18aa287f582b6",
+    "ARGUS_Global_Opportunity_Universe_V10_33_AI_Chain_Signal.xlsx": "25b6cd1b106a70ab42f3163411ef8358d2e7fb05a906e67bf8caaf3493c06085"
+  }
+}
