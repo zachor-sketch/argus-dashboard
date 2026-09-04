@@ -15,6 +15,7 @@ test('100 source-derived company profiles retain differentiated critical sensors
  assert.equal(MONITORS.length,100);assert.equal(new Set(MONITORS.map(c=>c.ticker)).size,100);
  assert.ok(new Set(MONITORS.map(c=>c.sensors)).size>60);
  assert.notDeepEqual(sensorTerms(company),sensorTerms(MONITORS[0]));
+ assert.ok(sensorTerms({sensors:'CET1, FCF and NRR',engine:'Bank capital'}).includes('cet1'));
  assert.ok(MONITORS.every(c=>c.sensors&&c.engine&&c.ir));
 });
 test('rules preserve source excerpts and do not infer decisions or directional valuation claims',()=>{
@@ -58,3 +59,7 @@ test('rate-limit responses block further requests to the host for the run',async
  await assert.rejects(client('https://www.sec.gov/a'),/HTTP_429/);await assert.rejects(client('https://www.sec.gov/b'),/BLOCKED_FOR_RUN/);assert.equal(requests,1);
 });
 test('committed observer journals have valid hash chains',()=>{for(const f of ['events.jsonl','scans.jsonl','documents.jsonl'])assert.ok(validateChain(readJournal(process.cwd(),f)))});
+test('official macro titles become scoped transmission reviews with original provenance',async()=>{
+ const dir=temp(),url='https://www.federalreserve.gov/feeds/press_all.xml',client=async u=>u.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):u.includes('submissions')?JSON.stringify({tickers:['INTU'],filings:{recent:{accessionNumber:[],form:[],filingDate:[],primaryDocument:[]}}}):'<rss><channel><item><title>Federal funds rate decision</title><link>https://www.federalreserve.gov/newsevents/fixture.htm</link><pubDate>Thu, 03 Sep 2026 14:00:00 GMT</pubDate></item></channel></rss>';
+ try{await runObserver({directory:dir,companies:[company],client,now:new Date('2026-09-04T06:17:00Z'),runId:'macro-fixture',macroSources:[{url,tier:'T2_OFFICIAL_REGULATOR',terms:/federal funds/i,variable:'Funding costs',sectors:null}]});const events=readJournal(dir,'events.jsonl');assert.equal(events.length,1);assert.equal(events[0].eventType,'macro_transmission');assert.equal(events[0].status,'OPEN');assert.match(events[0].variable,/Funding costs/);assert.equal(events[0].sourceAuthorityTier,'T2_OFFICIAL_REGULATOR')}finally{fs.rmSync(dir,{recursive:true,force:true})}
+});

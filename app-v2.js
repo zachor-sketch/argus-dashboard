@@ -169,6 +169,7 @@ document.addEventListener('click',e=>{
 },true);
 document.addEventListener('argus-observer-updated',()=>{
  $$('#daily .review-chip:not([data-review="price"])').forEach(chip=>{const c=reviewInfo(chip.dataset.reviewTicker,chip.dataset.review);chip.className='review-chip '+c.state});
- $$('#daily tbody tr').forEach(row=>{if(material($('.daily-ticker bdi',row).textContent))row.className='priority-urgent'});
+ const rows=$$('#daily tbody tr');rows.forEach(row=>{const ticker=$('.daily-ticker bdi',row).textContent,urgent=['weekly','forecast','full'].some(k=>reviewInfo(ticker,k).state==='red'),veto=DEFAULT_PORTFOLIO.policies[ticker]?.decision==='DO NOT ADD';row.className='priority-'+(urgent?'urgent':veto?'veto':'due')});
+ const rank=row=>row.classList.contains('priority-urgent')?0:row.classList.contains('priority-veto')?1:2;rows.sort((a,b)=>rank(a)-rank(b)).forEach(row=>$('#daily tbody').append(row));
 });
 boot();verify();bootObserver();

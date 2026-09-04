@@ -2,3 +2,4 @@ ARGUS_Master_V10_25.html -text
 ARGUS_Validation_Ledger_V10_25.json -text
 ARGUS_AI_Chain_Signal_V10_33.json -text
 ARGUS_Global_Opportunity_Universe_V10_33_AI_Chain_Signal.xlsx -text
+observer/*.jsonl text eol=lf
