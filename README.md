@@ -3,6 +3,8 @@
 ARGUS Challenger V1 Phase A is an isolated, research-only architecture with no live
 scoring or effect on Core decisions. See [CHALLENGER.md](CHALLENGER.md) for its packet
 contract, Debate interface, append-only journals and governance.
+The [Phase B controlled pilot](CHALLENGER_PHASE_B.md) adds source-first independent
+packets and separate audited Debate records, with no promotion into Core or trades.
 
 A dependency-free, responsive dashboard published from the root of `main` through GitHub Pages.
 

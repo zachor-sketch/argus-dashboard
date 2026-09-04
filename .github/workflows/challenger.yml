@@ -33,5 +33,7 @@ jobs:
           fi
       - name: Architecture only; no live scoring or persistence
         run: node scripts/challenger-run.mjs
+      - name: Replay controlled pilot provenance and independent-before-debate history
+        run: node scripts/challenger-pilot.mjs verify
       - name: Assert no tracked or untracked writes
         run: test -z "$(git status --porcelain)"

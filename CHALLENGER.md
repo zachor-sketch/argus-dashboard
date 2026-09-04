@@ -1,5 +1,9 @@
 # ARGUS Challenger V1 — Phase A
 
+Phase A remains the approved `/1` contract below. The opt-in controlled pilot uses
+a separate `/2` contract; see [CHALLENGER_PHASE_B.md](CHALLENGER_PHASE_B.md) for its
+source-first sequence, evidence gates and audited pilot results.
+
 Challenger is an independent research component. It has no integration with the
 Core execution path or dashboard, and no scoring engine, live source retrieval,
 portfolio executor, retraining, or recommendation override. No company challenge

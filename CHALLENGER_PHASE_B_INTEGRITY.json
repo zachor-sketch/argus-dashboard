@@ -1,0 +1,108 @@
+{
+  "baselineCommit": "4dec168464999cb1316d550386fea72300435fa7",
+  "algorithm": "SHA-256 raw bytes",
+  "artifacts": [
+    {
+      "file": "ARGUS_AI_Chain_Signal_V10_33.json",
+      "before": "9e37b9a996a3bd26f766a0aae131806385119bee71d5ec0b55c18aa287f582b6",
+      "after": "9e37b9a996a3bd26f766a0aae131806385119bee71d5ec0b55c18aa287f582b6",
+      "unchanged": true
+    },
+    {
+      "file": "ARGUS_Global_Opportunity_Universe_V10_33_AI_Chain_Signal.xlsx",
+      "before": "25b6cd1b106a70ab42f3163411ef8358d2e7fb05a906e67bf8caaf3493c06085",
+      "after": "25b6cd1b106a70ab42f3163411ef8358d2e7fb05a906e67bf8caaf3493c06085",
+      "unchanged": true
+    },
+    {
+      "file": "ARGUS_Master_V10_25.html",
+      "before": "e8d541ae0ecf3b55ccff74ae2062e4206cba8d38781f8123fe980533a56c6eeb",
+      "after": "e8d541ae0ecf3b55ccff74ae2062e4206cba8d38781f8123fe980533a56c6eeb",
+      "unchanged": true
+    },
+    {
+      "file": "ARGUS_Validation_Ledger_V10_25.json",
+      "before": "e147f7d235737285722c3fddb7760f820df4b01a196cfa09803fe94e71acf960",
+      "after": "e147f7d235737285722c3fddb7760f820df4b01a196cfa09803fe94e71acf960",
+      "unchanged": true
+    },
+    {
+      "file": "data.js",
+      "before": "aa92d54968fba7799f80a10e5b5c7661563282433e8bcd65f1f71b585217c1ed",
+      "after": "aa92d54968fba7799f80a10e5b5c7661563282433e8bcd65f1f71b585217c1ed",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/baseline_v10_25.js",
+      "before": "3a4056f17901633a2b29007825b854d0a6c558f4c9f2a9cebf372e65e8c8c966",
+      "after": "3a4056f17901633a2b29007825b854d0a6c558f4c9f2a9cebf372e65e8c8c966",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/event_log.js",
+      "before": "2f2abcafd69be5d04168d168dfde1cce052ca2d03ba8f030c41de85c05e775d4",
+      "after": "2f2abcafd69be5d04168d168dfde1cce052ca2d03ba8f030c41de85c05e775d4",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/market_snapshot.js",
+      "before": "74a8e1a94768864c81ef623b62aa0068a5187b4ca1d358bdcb22a3f7e1c25cf4",
+      "after": "74a8e1a94768864c81ef623b62aa0068a5187b4ca1d358bdcb22a3f7e1c25cf4",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/portfolio.js",
+      "before": "78a614173b9e5a8763d549482ea63ccc34e86e80d3fa359ceffa8d6f35a2ed37",
+      "after": "78a614173b9e5a8763d549482ea63ccc34e86e80d3fa359ceffa8d6f35a2ed37",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/proof_ledger.js",
+      "before": "faf7d5fb0f40828796b9902b2260b92facf6492a79b1b53465d5710482e576c8",
+      "after": "faf7d5fb0f40828796b9902b2260b92facf6492a79b1b53465d5710482e576c8",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/research_shadow.js",
+      "before": "b694bb75c719573e1241ffbd3ed2cf53db18d6fcf58f7e28c42b5a1daa9322dc",
+      "after": "b694bb75c719573e1241ffbd3ed2cf53db18d6fcf58f7e28c42b5a1daa9322dc",
+      "unchanged": true
+    },
+    {
+      "file": "datasets/universe_v10_33.js",
+      "before": "a10a7efedf275c1f412ba538a354d91fb5d8ca961c2ed6a2ad8279fd024f8f3b",
+      "after": "a10a7efedf275c1f412ba538a354d91fb5d8ca961c2ed6a2ad8279fd024f8f3b",
+      "unchanged": true
+    },
+    {
+      "file": "integrity-manifest.json",
+      "before": "ec14a5828c88eade4164aa85ee332dff5d3866febb15c1cabd3faddd75e0ac27",
+      "after": "ec14a5828c88eade4164aa85ee332dff5d3866febb15c1cabd3faddd75e0ac27",
+      "unchanged": true
+    },
+    {
+      "file": "lib/engine_v10_25.js",
+      "before": "96a0432266ef28f66afe16769a1e40d975ada3a7e63fc2aeec14de2915771312",
+      "after": "96a0432266ef28f66afe16769a1e40d975ada3a7e63fc2aeec14de2915771312",
+      "unchanged": true
+    },
+    {
+      "file": "observer/documents.jsonl",
+      "before": "0ad2147d7efdbca4cc55e96d3b97e77b9201af7b6de1ccefc87b5e910413f1f4",
+      "after": "0ad2147d7efdbca4cc55e96d3b97e77b9201af7b6de1ccefc87b5e910413f1f4",
+      "unchanged": true
+    },
+    {
+      "file": "observer/events.jsonl",
+      "before": "6767aa1fef3451bd1a5e1d10204747777d15bae27c8a16d135f9a9b9b4ae99cb",
+      "after": "6767aa1fef3451bd1a5e1d10204747777d15bae27c8a16d135f9a9b9b4ae99cb",
+      "unchanged": true
+    },
+    {
+      "file": "observer/scans.jsonl",
+      "before": "fb28b42f7fe9529c25cef7ff5695bebcb0aee75565e2b0473426e03007b4e833",
+      "after": "fb28b42f7fe9529c25cef7ff5695bebcb0aee75565e2b0473426e03007b4e833",
+      "unchanged": true
+    }
+  ]
+}

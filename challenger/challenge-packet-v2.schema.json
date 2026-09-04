@@ -1,0 +1,689 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ARGUS independent Challenge Packet /2 — Phase B",
+  "description": "Independent only. SUPPORT_CORE and CHALLENGE_CORE belong to separately persisted Debate records. Runtime validators enforce source binding, hashes, PIT and mandatory two-sided economic assessments.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "ticker",
+    "company",
+    "timestamp",
+    "evidenceCutoff",
+    "coreViewSnapshotRef",
+    "marketConsensusBelief",
+    "contrarianHypothesis",
+    "falsificationConditions",
+    "economicMechanism",
+    "valuationImplication",
+    "balanceSheetSurvivability",
+    "ownerEconomics",
+    "catalystProofEvent",
+    "contrarianTrapAnalysis",
+    "evidenceQuality",
+    "evidenceFor",
+    "evidenceAgainst",
+    "disagreementLevel",
+    "outputState",
+    "requiredNextResearch",
+    "stage",
+    "bundleHash",
+    "independentStance",
+    "sourceBundle"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "argus.challenge/2"
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ticker": {
+      "type": "string",
+      "minLength": 1
+    },
+    "company": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "evidenceCutoff": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+    },
+    "coreViewSnapshotRef": {
+      "const": "UNKNOWN"
+    },
+    "marketConsensusBelief": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "contrarianHypothesis": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "falsificationConditions": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "economicMechanism": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "valuationImplication": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "balanceSheetSurvivability": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ownerEconomics": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "catalystProofEvent": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "contrarianTrapAnalysis": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidenceQuality": {
+      "oneOf": [
+        {
+          "const": "UNKNOWN"
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "evidenceRefs"
+          ],
+          "properties": {
+            "value": {
+              "type": "string",
+              "minLength": 1,
+              "not": {
+                "const": "UNKNOWN"
+              }
+            },
+            "evidenceRefs": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidenceFor": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sourceRef",
+          "contentHash",
+          "publishedAt",
+          "availableAt",
+          "fact"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+          },
+          "availableAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+          },
+          "fact": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "evidenceAgainst": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "sourceRef",
+          "contentHash",
+          "publishedAt",
+          "availableAt",
+          "fact"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sourceRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contentHash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "publishedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+          },
+          "availableAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+          },
+          "fact": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "disagreementLevel": {
+      "const": "UNKNOWN"
+    },
+    "outputState": {
+      "enum": [
+        "UNKNOWN",
+        "NEW_OPPORTUNITY",
+        "CONTRARIAN_TRAP"
+      ]
+    },
+    "requiredNextResearch": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "question"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "RESEARCH",
+              "REUNDERWRITE"
+            ]
+          },
+          "question": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "stage": {
+      "const": "INDEPENDENT"
+    },
+    "bundleHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "independentStance": {
+      "enum": [
+        "UNKNOWN",
+        "FAVORABLE",
+        "UNFAVORABLE",
+        "NEW_OPPORTUNITY",
+        "CONTRARIAN_TRAP"
+      ]
+    },
+    "sourceBundle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "ticker",
+        "company",
+        "evidenceCutoff",
+        "repositoryCommit",
+        "evidence",
+        "provenance",
+        "excluded",
+        "missingInputs"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "argus.source-bundle/1"
+        },
+        "ticker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "company": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidenceCutoff": {
+          "type": "string",
+          "format": "date-time",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+        },
+        "repositoryCommit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "sourceRef",
+              "contentHash",
+              "publishedAt",
+              "availableAt",
+              "fact"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "sourceRef": {
+                "type": "string",
+                "minLength": 1
+              },
+              "contentHash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "publishedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+              },
+              "availableAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?Z$"
+              },
+              "fact": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "provenance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "evidenceId",
+              "kind",
+              "sourceFile",
+              "recordId",
+              "recordHash",
+              "documentId",
+              "documentRecordHash",
+              "documentContentHash",
+              "dateMethod"
+            ],
+            "properties": {
+              "evidenceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "enum": [
+                  "OBSERVER_EXCERPT",
+                  "OFFICIAL_TITLE_ONLY",
+                  "VERIFIED_PRICE"
+                ]
+              },
+              "sourceFile": {
+                "enum": [
+                  "observer/events.jsonl",
+                  "datasets/market_snapshot.js"
+                ]
+              },
+              "recordId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "recordHash": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              },
+              "documentId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentRecordHash": {
+                "type": "string",
+                "minLength": 1
+              },
+              "documentContentHash": {
+                "type": "string",
+                "minLength": 1
+              },
+              "dateMethod": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "reason"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "missingInputs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

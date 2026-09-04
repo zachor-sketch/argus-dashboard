@@ -3,6 +3,8 @@ import path from 'node:path';
 import {createHash} from 'node:crypto';
 import {canonical} from '../lib/integrity.js';
 import {validateChallenge, instant} from '../lib/challenger-model.js';
+import {validateIndependent} from '../lib/challenger-pilot-model.js';
+import {validatePilotRecord, validatePilotLinks} from './challenger-pilot-records.mjs';
 
 export const JOURNALS = Object.freeze(['challenges.jsonl', 'runs.jsonl']);
 export const hash = value => createHash('sha256').update(typeof value === 'string' || Buffer.isBuffer(value) ? value : canonical(value)).digest('hex');
@@ -22,7 +24,16 @@ export function journalPath(root, name) {
 }
 
 function validatePayload(name, row) {
-  if (name === 'challenges.jsonl') return validateChallenge(row);
+  if (name === 'challenges.jsonl') {
+    if (row?.schemaVersion === 'argus.challenge/2') {
+      const packet = validateIndependent(row);
+      if (hash(packet.sourceBundle) !== packet.bundleHash) throw Error('PILOT_BUNDLE_HASH');
+      if (packet.sourceBundle.evidence.some(e => hash(e.fact) !== e.contentHash)) throw Error('PILOT_EXCERPT_HASH');
+      return packet;
+    }
+    return validateChallenge(row);
+  }
+  if (name === 'runs.jsonl' && ['argus.pilot-batch/1', 'argus.pilot-debate/1'].includes(row?.schemaVersion)) return validatePilotRecord(row);
   if (!row || Object.keys(row).sort().join(',') !== 'id,mode,schemaVersion,status,timestamp' ||
       typeof row.id !== 'string' || !row.id.trim() || row.schemaVersion !== 'argus.challenger-run/1' ||
       row.mode !== 'ARCHITECTURE_ONLY' || row.status !== 'VERIFIED_NO_SCORING') throw Error('CHALLENGER_RUN_SCHEMA');
@@ -70,6 +81,11 @@ export function appendJournal(root, name, payload, trustedPrefix) {
   if (rows.some(row => row.payload.id === payload.id)) throw Error('CHALLENGER_DUPLICATE_ID');
   const body = {sequence: rows.length + 1, previousHash: rows.at(-1)?.hash ?? null, payload};
   const row = {...body, hash: hash(body)};
+  if (name === 'runs.jsonl' && payload.schemaVersion.startsWith('argus.pilot-')) {
+    const challengesFile = journalPath(root, 'challenges.jsonl');
+    const challenges = validateJournal('challenges.jsonl', fs.existsSync(challengesFile) ? fs.readFileSync(challengesFile) : '');
+    validatePilotLinks(challenges, [...rows, row]);
+  }
   fs.mkdirSync(path.dirname(file), {recursive: true});
   const fd = fs.openSync(journalPath(root, name), fs.constants.O_WRONLY | fs.constants.O_APPEND | fs.constants.O_CREAT | (fs.constants.O_NOFOLLOW || 0));
   try {

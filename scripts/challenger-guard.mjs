@@ -3,6 +3,7 @@ import {execFileSync} from 'node:child_process';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {JOURNALS, verifyJournal} from './challenger-store.mjs';
+import {validatePilotLinks} from './challenger-pilot-records.mjs';
 
 export function trustedPrefix(root, name, ref = 'HEAD') {
   if (!JOURNALS.includes(name) || !/^[a-zA-Z0-9_./^-]+$/.test(ref) || ref.startsWith('-')) throw Error('CHALLENGER_REFERENCE_DENIED');
@@ -12,7 +13,8 @@ export function trustedPrefix(root, name, ref = 'HEAD') {
 }
 
 export function verifyHistory(root, ref = 'HEAD') {
-  for (const name of JOURNALS) verifyJournal(root, name, trustedPrefix(root, name, ref));
+  const rows = JOURNALS.map(name => verifyJournal(root, name, trustedPrefix(root, name, ref)));
+  validatePilotLinks(rows[0], rows[1]);
 }
 
 export function snapshotProtected(root) {
