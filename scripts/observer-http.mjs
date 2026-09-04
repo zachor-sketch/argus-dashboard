@@ -2,6 +2,7 @@ import https from 'node:https';
 import {lookup} from 'node:dns/promises';
 import {isIP} from 'node:net';
 import {Readable} from 'node:stream';
+import {createHash} from 'node:crypto';
 import {OBSERVER_CONFIG as C} from '../lib/observer-config.js';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 export function publicAddress(address){
@@ -25,8 +26,14 @@ export function pinnedFetch(url,{headers,signal,addresses}){
   resolve(new Response(Readable.toWeb(res),{status:res.statusCode,headers:Object.fromEntries(Object.entries(res.headers).filter(([,v])=>v!==undefined).map(([k,v])=>[k,Array.isArray(v)?v.join(', '):v]))}));
  });req.on('error',reject);req.end()});
 }
+export async function denialDiagnostic(response){
+ const reader=response.body?.getReader();let bytes=0;const chunks=[];
+ try{if(reader)while(bytes<4096){const {done,value}=await reader.read();if(done)break;const part=value.slice(0,4096-bytes);chunks.push(Buffer.from(part));bytes+=part.length}}finally{await reader?.cancel()}
+ const sample=Buffer.concat(chunks).toString('utf8'),title=(sample.match(/<title[^>]*>([\s\S]*?)<\/title>/i)||[])[1]?.replace(/\s+/g,' ').slice(0,200)||null;
+ return {bodySampleBytes:bytes,bodySampleSha256:createHash('sha256').update(Buffer.concat(chunks)).digest('hex'),title,denialCategory:/undeclared automated tool/i.test(sample)?'UNDECLARED_AUTOMATED_TOOL':/rate threshold|rate limit|too many requests/i.test(sample)?'RATE_LIMIT':/access denied/i.test(sample)?'ACCESS_DENIED':'UNSPECIFIED',reference:(sample.match(/(?:Reference(?:\s+ID)?\s*[:#]?)[^<\r\n]{0,160}/i)||[])[0]||null};
+}
 export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:true,verbatim:true}),wait=sleep,userAgent=secUserAgent(),interval=C.requestIntervalMs,maxRedirects=4}={}){
- let last=0,tail=Promise.resolve();const blocked=new Set(),finalURLs=new Map();
+ let last=0,tail=Promise.resolve();const blocked=new Set(),finalURLs=new Map(),diagnostics=[];
  const request=async original=>{
   let url=original;const visited=new Set();
   for(let hop=0;hop<=maxRedirects;hop++){
@@ -38,6 +45,11 @@ export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:
    const r=await fetcher(u.href,{headers:{'User-Agent':userAgent,Accept:'application/json, application/xml, text/html, text/plain','Accept-Encoding':'identity'},signal:AbortSignal.timeout(15000),redirect:'manual',addresses});
    // Respect denial/throttling for the entire host for the rest of this scan; no rotated identity or proxy.
    if([403,429].includes(r.status))blocked.add(u.hostname);
+   if(['www.sec.gov','data.sec.gov'].includes(u.hostname)){
+    const diagnostic={url:u.href,timestamp:new Date().toISOString(),status:r.status,userAgentSha256:createHash('sha256').update(userAgent).digest('hex'),contactType:userAgent.includes('contact:https:')?'REPOSITORY_URL_NOT_EMAIL':'EMAIL',headers:Object.fromEntries(['server','date','content-type','content-encoding','retry-after','x-request-id'].map(k=>[k,r.headers.get(k)]))};
+    if(!r.ok&&![301,302,303,307,308].includes(r.status)){try{Object.assign(diagnostic,await denialDiagnostic(r))}catch(e){diagnostic.diagnosticError=e.message}diagnostics.push(diagnostic);throw Error('HTTP_'+r.status)}
+    diagnostics.push(diagnostic);
+   }
    if([301,302,303,307,308].includes(r.status)){
     await r.body?.cancel();if(hop===maxRedirects)throw Error('REDIRECT_LIMIT');const location=r.headers.get('location');if(!location)throw Error('REDIRECT_LOCATION_MISSING');url=safeURL(new URL(location,u).href).href;continue;
    }
@@ -51,5 +63,5 @@ export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:
  };
  // Even accidental concurrent callers share the same serial rate limiter.
  const client=url=>{const next=tail.then(()=>request(url));tail=next.catch(()=>{});return next};
- client.finalURL=url=>finalURLs.get(url)||url;return client;
+ client.finalURL=url=>finalURLs.get(url)||url;client.diagnostics=()=>({blockedHosts:[...blocked],requests:structuredClone(diagnostics)});return client;
 }

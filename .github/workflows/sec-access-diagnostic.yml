@@ -1,0 +1,21 @@
+name: SEC access diagnostic
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: argus-observer-release
+  cancel-in-progress: false
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Test production SEC transport once per official host
+        env:
+          SEC_CONTACT: ${{ vars.SEC_CONTACT }}
+        run: node scripts/sec-access-diagnostic.mjs

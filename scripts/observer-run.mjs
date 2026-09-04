@@ -69,7 +69,7 @@ export async function runObserver({directory=root,client=makeClient(),companies=
    }catch(e){failure(company.ticker,company.ir,e)}
   }
   const ok=failedSources.length===before&&(secOK||irOK);
-  results.push({ticker:company.ticker,ok,usable:secOK||irOK,coverage:secOK?'SEC_FILINGS_AND_EXHIBITS':irOK?'PARTIAL_IR':'UNAVAILABLE',sources,lastSuccessfulScan:ok?started:prior?.lastSuccessfulScan||null,attemptedAt:started});
+  results.push({ticker:company.ticker,ok,usable:secOK||irOK,secApplicable:company.secApplicable,secSubmissionsSuccessful:secOK,secSuccessful:secOK&&ok,coverage:secOK?'SEC_FILINGS_AND_EXHIBITS':irOK?'PARTIAL_IR':'UNAVAILABLE',sources,lastSuccessfulScan:ok?started:prior?.lastSuccessfulScan||null,attemptedAt:started});
  }
  for(const feed of macroSources){
   try{
@@ -82,8 +82,9 @@ export async function runObserver({directory=root,client=makeClient(),companies=
   }catch(e){failure('*',feed.url,e)}
  }
  const added=appendJournal(directory,'events.jsonl',events);appendJournal(directory,'documents.jsonl',documents);
- const previous=readJournal(directory,'scans.jsonl').at(-1),classification=classifyScan(results,failedSources,companies.length),ok=classification.status==='SUCCESS';
- const scan={id:'scan-'+runId,startedAt:started,finishedAt:new Date().toISOString(),...classification,lastSuccessfulScan:ok?started:previous?.lastSuccessfulScan||null,universeCount:companies.length,companies:results,failedSources,newEvidence:added.length,highMateriality:added.filter(e=>e.materiality==='high').length,windowStart:new Date(cutoff).toISOString(),runUrl:process.env.GITHUB_RUN_ID?`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`:null};
+ const secDiagnostics=client.diagnostics?.()||{blockedHosts:[],requests:[]};
+ const previous=readJournal(directory,'scans.jsonl').at(-1),classification=classifyScan(results,failedSources,companies.length,secDiagnostics),ok=classification.status==='SUCCESS';
+ const scan={id:'scan-'+runId,startedAt:started,finishedAt:new Date().toISOString(),...classification,secDiagnostics,lastSuccessfulScan:ok?started:previous?.lastSuccessfulScan||null,universeCount:companies.length,companies:results,failedSources,newEvidence:added.length,highMateriality:added.filter(e=>e.materiality==='high').length,windowStart:new Date(cutoff).toISOString(),runUrl:process.env.GITHUB_RUN_ID?`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`:null};
  appendJournal(directory,'scans.jsonl',[scan]);assertBaseline();return scan;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){

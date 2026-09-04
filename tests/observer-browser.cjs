@@ -13,7 +13,7 @@ try{
   if(lang==='en')await Promise.all([page.waitForNavigation(),page.locator('[data-lang="en"]').click()]);
   await page.locator('#observer-queue .observer-event').waitFor();
   assert.equal(await page.locator('#observer tbody tr').count(),100);
-  assert.match(await page.locator('#observer .observer-warning').innerText(),lang==='he'?/נכשלה/:/failed/);
+  assert.match(await page.locator('#observer .observer-warning').innerText(),lang==='he'?/כשל מערכת/:/SYSTEM FAILURE/);
   assert.equal(await page.locator('#observer .observer-state.green').count(),0);
   assert.equal(await page.locator('.review-chip[data-review="weekly"][data-review-ticker="INTU"].red').count(),1);
   for(const width of [1440,1024,768,390]){await page.setViewportSize({width,height:1000});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);}
@@ -28,6 +28,9 @@ try{
  assert.match(await page.locator('#observer .section-heading').innerText(),/PARTIAL/);
  assert.equal(await page.locator('#observer tbody tr').filter({has:page.locator('bdi',{hasText:/^IONQ$/})}).locator('.observer-state.green').count(),1);
  assert.equal(await page.locator('#observer tbody tr').filter({has:page.locator('bdi',{hasText:/^INTU$/})}).locator('.observer-state.red').count(),1);
+ await page.route('**/observer/scans.jsonl',r=>r.fulfill({body:JSON.stringify({status:'PARTIAL',completeCompanies:0,usableCompanies:31,secSuccessfulCompanies:0,secConnectorStatus:'SYSTEM_FAILURE',companies:MONITORS.map((c,i)=>({ticker:c.ticker,ok:false,usable:i<31,coverage:i<31?'PARTIAL_IR':'UNAVAILABLE'})),failedSources:[]})+'\n'}));
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#observer .observer-warning')?.textContent.includes('SYSTEM FAILURE'));
+ assert.match(await page.locator('#observer .section-heading').innerText(),/SYSTEM FAILURE/);assert.equal(await page.locator('#observer .observer-state.green').count(),0);assert.match(await page.locator('#observer .observer-regulatory-status').innerText(),/0/);
  await page.route('https://api.github.com/**',r=>r.abort());await page.reload();await page.locator('#observer .observer-warning').waitFor();
  assert.equal(await page.locator('#observer .observer-state.green').count(),0);assert.deepEqual(errors,[]);
  console.log('PASS: Observer bilingual responsive status, failed/unavailable workflow, PARTIAL versus per-company fail-closed health, 100 profiles, review routing, local acknowledgment, unchanged lock.');
