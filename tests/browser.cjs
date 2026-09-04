@@ -7,6 +7,7 @@ const fs = require('node:fs');
   await new Promise(r=>server.listening?r():server.once('listening',r));
   const browser=await chromium.launch({headless:true,channel:'msedge'});
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
+  await page.clock.install({time:new Date('2026-09-05T00:00:00Z')}); // Exercise historical-estimate fallback deterministically.
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',msg=>{if(msg.type()==='error') errors.push(msg.text());});

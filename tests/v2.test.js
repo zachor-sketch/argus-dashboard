@@ -26,7 +26,7 @@ test('authoritative artifacts retain pinned raw hashes',()=>{
 });
 test('no unverified or stale quote can produce market value or P/L',()=>{
  const h={ticker:'INTU',shares:5300,averageCost:357.21283,purchaseDate:'2026-08-31'};
- assert.equal(verifiedQuote('INTU'),null);const m=holdingMetrics(h,4_000_000);
+ const empty={quotes:{},maxAgeHours:24};assert.equal(verifiedQuote('INTU',empty),null);const m=holdingMetrics(h,4_000_000,empty);
  assert.equal(m.value,null);assert.equal(m.pl,null);assert.equal(m.weight,null);assert.equal(m.capacity,0);assert.equal(m.decision,'DO NOT ADD');
 });
 test('original engine functions reproduce locked source logic without rewriting official locks',()=>{

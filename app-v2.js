@@ -8,7 +8,7 @@ import {PROOF_LEDGER} from './datasets/proof_ledger.js';
 import {EVENT_LOG} from './datasets/event_log.js';
 import {canonical,sha256} from './lib/integrity.js';
 import {portfolio,savePortfolio,records,recordEvent,recordForecast,recordLearning} from './lib/state.js';
-import {holdingMetrics,companyMeta,reviewState,authorization,estimate} from './lib/calculations.js';
+import {verifiedQuote,holdingMetrics,companyMeta,reviewState,authorization,estimate} from './lib/calculations.js';
 import {originalEngine} from './lib/engine_v10_25.js';
 import * as V from './lib/view.js';
 import {translateDOM} from './lib/i18n.js';
@@ -26,10 +26,19 @@ const show=(title,eyebrow,html)=>{const d=$('#research-dialog');$('#dialog-title
 function decision(d){return V.pill(V.decision(d),V.tones[d]||'neutral')}
 function reviewLabel(key){return ({price:tr('Market','מחיר / Market'),weekly:tr('Fundamental','פונדמנטלי'),forecast:tr('Forecast / Drivers','תחזית / Drivers'),full:tr('Full underwriting','חיתום מלא')})[key]}
 function reviewDate(value){return new Intl.DateTimeFormat('en-GB',{day:'2-digit',month:'2-digit',year:'2-digit',timeZone:'Asia/Jerusalem'}).format(new Date(value))}
+function reviewInfo(ticker,key){
+ if(key!=='price')return {...B.reviews[key],state:reviewState(B.reviews[key],{materialEvent:material(ticker)})};
+ const q=verifiedQuote(ticker),raw=MARKET_SNAPSHOT.quotes[ticker];
+ return {last:MARKET_SNAPSHOT.verifiedAt,next:raw?new Date(Date.parse(raw.timestamp)+MARKET_SNAPSHOT.maxAgeHours*3600000).toISOString():null,state:q?'green':'red'};
+}
+function quoteCell(ticker){
+ const q=verifiedQuote(ticker),raw=MARKET_SNAPSHOT.quotes[ticker];
+ return `<div class="market-quote">${q?`<strong>${V.money(q.price,2)}</strong>`:`<span class="price-refresh">${V.missingPrice()}</span>`}${raw?`<small class="quote-meta"><bdi title="${esc(raw.timestamp)}">${esc(raw.timestamp.replace('T',' ').replace(':00Z',' UTC'))}</bdi><a href="${esc(raw.source)}" target="_blank" rel="noopener noreferrer" dir="ltr">${esc(raw.sourceLabel)}</a></small>`:''}</div>`;
+}
 function reviewDots(t){
  const items=[['price','Market','מחיר / Market',true],['weekly','Fundamental','פונדמנטלי'],['forecast','Forecast / Drivers','תחזית / Drivers'],['full','Full underwriting','חיתום מלא']];
  const event=material(t);
- const indicators=items.map(([k,en,he,price])=>{const c=B.reviews[k],s=reviewState(c,{materialEvent:event,missingPrice:price}),label=tr(en,he),detail=`${label} · ${tr('Last','אחרונה')}: ${V.date(c.last,true)} · ${tr('Next','הבאה')}: ${V.date(c.next,true)}`;return `<button class="review-chip ${s}" data-review="${k}" data-review-ticker="${t}" title="${esc(detail)}" aria-label="${esc(detail)}"><span aria-hidden="true"></span><b>${label}</b></button>`}).join('');
+ const indicators=items.map(([k,en,he,price])=>{const c=reviewInfo(t,k),s=c.state,label=tr(en,he),detail=`${label} · ${tr('Last','אחרונה')}: ${V.date(c.last,true)} · ${tr('Next','הבאה')}: ${V.date(c.next,true)}`;return `<button class="review-chip ${s}" data-review="${k}" data-review-ticker="${t}" title="${esc(detail)}" aria-label="${esc(detail)}"><span aria-hidden="true"></span><b>${label}</b></button>`}).join('');
  const anchor=B.reviews.weekly;
  return `<div class="review-chips">${indicators}</div><div class="review-dates" title="${tr('Fundamental review schedule; select an indicator for its own dates','מועדי הבדיקה הפונדמנטלית; בחר מחוון למועדי הבדיקה שלו')}"><span>${tr('Last','אחרונה')} <bdi>${reviewDate(anchor.last)}</bdi></span><i aria-hidden="true">·</i><span>${tr('Next','הבאה')} <bdi>${reviewDate(anchor.next)}</bdi></span></div>`;
 }
@@ -90,7 +99,7 @@ function language(){
 function wire(){
  $$('[data-lang]').forEach(b=>b.onclick=()=>{V.setLanguage(b.dataset.lang);location.reload()});
  $$('.v2-method').forEach(b=>b.onclick=()=>show(tr('Data & methodology','נתונים ומתודולוגיה'),'ARGUS V2',V.sourceData({integrity,marketSnapshot:MARKET_SNAPSHOT,separation:{baseline:'baseline_v10_25.js — immutable',portfolio:'portfolio.js + local state',market:'market_snapshot.js — verified only',research:'research_shadow.js',events:'event_log.js — append only',proof:'proof_ledger.js — append only'},rules:['Company BUY ≠ Portfolio BUY','Missing verified price → refresh required','Historical decisions are never rewritten']})));
- $$('[data-review]').forEach(b=>b.onclick=()=>{const key=b.dataset.review,ticker=b.dataset.reviewTicker,c=B.reviews[key],state=reviewState(c,{materialEvent:material(ticker),missingPrice:key==='price'}),status=state==='red'?tr('Review required','נדרשת בדיקה'):state==='green'?tr('Current','עדכני'):tr('Scheduled / approaching','מתוכנן / מתקרב');show(tr('Review status','מצב בדיקה'),ticker,V.stats([[tr('Review','בדיקה'),reviewLabel(key)],[tr('Status','מצב'),V.pill(status,state==='red'?'negative':state==='green'?'positive':'caution')],[tr('Last Review','בדיקה אחרונה'),V.date(c.last,true)],[tr('Next Review','בדיקה הבאה'),V.date(c.next,true)],[tr('Quote freshness','רעננות ציטוט'),V.missingPrice()],[tr('Quote timestamp','זמן ציטוט'),'—'],[tr('Quote source','מקור ציטוט'),'—']]))});
+ $$('[data-review]').forEach(b=>b.onclick=()=>{const key=b.dataset.review,ticker=b.dataset.reviewTicker,c=reviewInfo(ticker,key),state=c.state,q=verifiedQuote(ticker),raw=MARKET_SNAPSHOT.quotes[ticker],status=state==='red'?tr('Review required','נדרשת בדיקה'):state==='green'?tr('Current','עדכני'):tr('Scheduled / approaching','מתוכנן / מתקרב');show(tr('Review status','מצב בדיקה'),ticker,V.stats([[tr('Review','בדיקה'),reviewLabel(key)],[tr('Status','מצב'),V.pill(status,state==='red'?'negative':state==='green'?'positive':'caution')],[tr('Last Review','בדיקה אחרונה'),V.date(c.last,true)],[tr('Next Review','בדיקה הבאה'),V.date(c.next,true)],[tr('Quote freshness','רעננות ציטוט'),q?tr('Verified regular-session close · within 24 hours','סגירת מסחר רגיל מאומתת · בטווח 24 שעות'):V.missingPrice()],[tr('Quote timestamp','זמן ציטוט'),raw?V.num(raw.timestamp):'—'],[tr('Quote source','מקור ציטוט'),raw?V.link(raw.source,raw.sourceLabel):'—'],[tr('Verified at','אומת במועד'),V.num(MARKET_SNAPSHOT.verifiedAt)],[tr('Session','מסחר'),V.num(MARKET_SNAPSHOT.session)],[tr('Secondary cross-check','הצלבה נוספת'),raw?.secondarySource?V.link(raw.secondarySource,'Reuters'):'—']]))});
  $$('[data-why]').forEach(b=>b.onclick=()=>{const ticker=b.dataset.why;show(tr('Decision rationale','נימוק ההחלטה'),ticker,`<div class="detail-box"><p dir="auto">${esc(engine(ticker).whyNow||stock(ticker).logic||V.missing())}</p></div>`)});
  $$('[data-v2-engine]').forEach(b=>b.onclick=()=>show(stock(b.dataset.v2Engine).company,'V10.25 FULL ENGINE',enginePanel(b.dataset.v2Engine)));
  $$('[data-v2-forecast]').forEach(b=>b.onclick=()=>show(stock(b.dataset.v2Forecast).company,tr('Forecast / Drivers','תחזית / מנועים'),forecast(b.dataset.v2Forecast)));
@@ -109,12 +118,15 @@ function wire(){
 function syncOverlay(){
  const h=P.holdings.find(x=>x.ticker==='INTU'),basis=$('#valuation-basis').value,e=h?estimate(h,P.total,basis):null,w=e?.weight||0;
  $('#summary .metric strong').innerHTML=V.money(P.total)+'<span class="unit">USD</span>';
- $('#holding-value').innerHTML=V.money(e?.value??null);$('#current-weight').innerHTML=V.percent(e?.weight??null);
+ const m=h?holdingMetrics(h,P.total):null;
+ $('#holding-value').innerHTML=V.money(m?.value??e?.value??null);$('#current-weight').innerHTML=V.percent(m?.weight??e?.weight??null);
  $('#valuation-label').textContent=h?tr(h.shares+' shares × '+e.price+' historical / cost reference',h.shares+' מניות × '+e.price+' מחיר היסטורי / עלות'):tr('No INTU holding','אין אחזקת INTU');
+ if(m?.quote)$('#valuation-label').textContent=tr('Verified regular-session close','סגירת מסחר רגיל מאומתת')+' · '+m.quote.timestamp;
+ $$('#summary .info-tag').forEach(el=>el.textContent=m?.quote?tr('VERIFIED','מאומת'):tr('EST.','אומדן'));
  $('#overlay-weight').innerHTML=V.percent(e?.weight??null);$('#known-percent').innerHTML=V.percent(e?.weight??null);$('#unknown-percent').innerHTML=V.percent(Math.max(0,100-w));$('#over-max').innerHTML=V.money(Math.max(0,(e?.value||0)-P.total*.12));
  $('#alert-description').textContent=tr('Historical estimate '+w.toFixed(2)+'%; target 6–8%, hard max 12%. Current market weight requires a verified quote.','אומדן היסטורי '+w.toFixed(2)+'%; יעד 6–8%, תקרה 12%. משקל שוק נוכחי דורש ציטוט מאומת.');
  $('#weight-fill').style.width=Math.min(100,w)+'%';$('#portfolio-donut').style.background='conic-gradient(var(--red) 0 '+Math.min(100,w)+'%, var(--surface-3) '+Math.min(100,w)+'% 100%)';
- const val=$('#stock-INTU .card-position strong');if(val)val.innerHTML=V.percent(e?.weight??null)+' '+tr('est.','אומדן');
+ const val=$('#stock-INTU .card-position strong');if(val)val.innerHTML=V.percent(m?.weight??e?.weight??null)+' '+(m?.quote?tr('verified','מאומת'):tr('est.','אומדן'));
 }
 function boot(){
  dailyBoard();editor();events();universe();expandRadar();addButtons();proof();language();wire();syncOverlay();
@@ -126,8 +138,27 @@ function boot(){
  $('#shadow-layers').onclick=()=>show(tr('Authoritative research layers','שכבות מחקר סמכותיות'),'V10.26–V10.33 SHADOW',V.sourceData(RESEARCH_SHADOW.layers));
  $('#universe .filter-row').insertAdjacentHTML('beforeend',`<select id="universe-priority"><option value="">${tr('All priorities','כל העדיפויות')}</option><option>P1</option><option>P2</option><option>P3</option></select>`);
  $('#universe-priority').onchange=e=>$$('#universe tbody tr').forEach(r=>r.hidden=!!e.target.value&&!r.cells[5].textContent.includes(e.target.value));
- translateDOM();
+ translateDOM();refreshMarketUI();
 }
+let quoteExpiryTimer;
+function refreshMarketUI(){
+ clearTimeout(quoteExpiryTimer);
+ $$('#daily tbody tr').forEach(r=>{const ticker=$('.daily-ticker bdi',r).textContent,h=P.holdings.find(x=>x.ticker===ticker);r.cells[1].innerHTML=quoteCell(ticker);r.cells[5].innerHTML=V.percent(h?holdingMetrics(h,P.total).weight:null);const chip=$('[data-review="price"]',r),c=reviewInfo(ticker,'price');chip.className='review-chip '+c.state;chip.title=reviewLabel('price')+' · '+tr('Last','אחרונה')+': '+V.date(c.last,true)+' · '+tr('Next','הבאה')+': '+V.date(c.next,true);chip.setAttribute('aria-label',chip.title)});
+ $$('#board-rows tr').forEach(r=>{const ticker=r.querySelector('[data-ticker]')?.dataset.ticker;if(ticker)r.cells[1].innerHTML=quoteCell(ticker)});
+ $$('#v2-holdings tr').forEach((r,i)=>{const h=P.holdings[i];if(!h)return;const m=holdingMetrics(h,P.total);[V.money(m.value,2),V.money(m.pl,2),V.percent(m.plPct),V.percent(m.weight)].forEach((v,j)=>r.cells[5+j].innerHTML=v)});
+ syncOverlay();
+ const fresh=Object.keys(MARKET_SNAPSHOT.quotes).some(t=>verifiedQuote(t));
+ $$('[data-open="data"]').forEach(el=>el.textContent=fresh?tr('Verified close · 03 Sep','סגירה מאומתת · 03.09'):V.missingPrice());
+ $$('.stock-card').forEach(card=>{const ticker=card.id.replace('stock-',''),q=verifiedQuote(ticker),label=$('.card-lock-label span:last-child',card);if(label)label.innerHTML=q?tr('Verified close: ','סגירה מאומתת: ')+V.money(q.price,2):V.missingPrice()});
+ const toolbar=$('#board-rows').closest('.board-panel').querySelector('.panel-toolbar .muted');toolbar.textContent=fresh?tr('Manually verified · REGULAR_CLOSE · 03 Sep 2026','אימות ידני · REGULAR_CLOSE · 03.09.2026'):V.missingPrice();
+ $('#board-rows').closest('table').querySelectorAll('th')[1].textContent=tr('Verified market price','מחיר שוק מאומת');
+ $$('#board-rows tr').forEach(r=>r.cells[1].classList.remove('live-missing'));
+ const expiries=Object.keys(MARKET_SNAPSHOT.quotes).filter(t=>verifiedQuote(t)).map(t=>Date.parse(MARKET_SNAPSHOT.quotes[t].timestamp)+MARKET_SNAPSHOT.maxAgeHours*3600000+1);
+ if(expiries.length)quoteExpiryTimer=setTimeout(refreshMarketUI,Math.max(1,Math.min(...expiries)-Date.now()));
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshMarketUI()});
+$('#company-search').addEventListener('input',refreshMarketUI);
+document.addEventListener('click',e=>{if(e.target.closest('[data-filter]'))queueMicrotask(refreshMarketUI)});
 async function verify(){try{const m=await fetch('./integrity-manifest.json',{cache:'no-store'}).then(r=>r.json()),actual=await sha256(canonical(B));integrity={ok:actual===m.canonicalBaselineSha256,actual,expected:m.canonicalBaselineSha256}}catch(e){integrity={ok:false,actual:e.message}}const el=$('.sidebar-bottom .dot');if(el){el.className='dot '+(integrity.ok?'green-dot':'red-dot');el.parentElement.title=integrity.ok?'SHA-256 '+integrity.actual:'INTEGRITY FAILURE'}}
 document.addEventListener('click',e=>{
  const method=e.target.closest('[data-open="data"]');if(method){e.stopImmediatePropagation();e.preventDefault();show(tr('Data and methodology','נתונים ומתודולוגיה'),'ARGUS V2',V.sourceData({integrity,marketSnapshot:MARKET_SNAPSHOT,sources:['ARGUS_Master_V10_25.html','ARGUS_Validation_Ledger_V10_25.json','ARGUS_AI_Chain_Signal_V10_33.json','ARGUS_Global_Opportunity_Universe_V10_33_AI_Chain_Signal.xlsx']}));return}
