@@ -1,0 +1,32 @@
+name: ARGUS Power and Regulation Radar V0.1
+on:
+  push:
+    branches: [main]
+    paths: ['radar/**', 'lib/regulatory-radar-*.js', 'scripts/regulatory-radar-*.mjs', 'tests/regulatory-radar*', 'REGULATORY_RADAR*', '.github/workflows/regulatory-radar.yml']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  research-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run check && npm test
+      - name: Verify committed prefixes and protected isolation
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE" ] || [ "$BASE" = 0000000000000000000000000000000000000000 ]; then BASE=HEAD; fi
+          node scripts/regulatory-radar-verify.mjs "$BASE"
+      - run: node scripts/regulatory-radar-run.mjs verify
+      - run: node scripts/regulatory-radar-history.mjs
+      - name: No data collection, writes, trades or promotion in CI
+        run: test -z "$(git status --porcelain)"
