@@ -31,7 +31,7 @@ jobs:
         if: github.event_name != 'push'
         continue-on-error: true
         env:
-          SEC_CONTACT: ${{ vars.SEC_CONTACT }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
         run: node scripts/observer-run.mjs
       - name: Verify observer write boundary
         if: always() && steps.scan.outcome != 'skipped'

@@ -17,5 +17,5 @@ jobs:
           node-version: 24
       - name: Test production SEC transport once per official host
         env:
-          SEC_CONTACT: ${{ vars.SEC_CONTACT }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
         run: node scripts/sec-access-diagnostic.mjs
