@@ -1,5 +1,9 @@
 # ARGUS Dashboard
 
+ARGUS Challenger V1 Phase A is an isolated, research-only architecture with no live
+scoring or effect on Core decisions. See [CHALLENGER.md](CHALLENGER.md) for its packet
+contract, Debate interface, append-only journals and governance.
+
 A dependency-free, responsive dashboard published from the root of `main` through GitHub Pages.
 
 Live site: https://zachor-sketch.github.io/argus-dashboard/
