@@ -88,6 +88,6 @@ export async function runObserver({directory=root,client=makeClient(),companies=
  appendJournal(directory,'scans.jsonl',[scan]);assertBaseline();return scan;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- try{const scan=await runObserver();console.log(JSON.stringify({status:scan.status,companies:scan.companies.length,covered:scan.companies.filter(c=>c.ok).length,newEvidence:scan.newEvidence,failedSources:scan.failedSources.length}));if(scan.status==='SYSTEM_FAILURE')process.exitCode=2}
+ try{const scan=await runObserver();console.log(JSON.stringify({status:scan.status,completeCompanies:scan.completeCompanies,usableCompanies:scan.usableCompanies,unavailableCompanies:scan.unavailableCompanies,secSuccessfulCompanies:scan.secSuccessfulCompanies,secSubmissionsSuccessfulCompanies:scan.secSubmissionsSuccessfulCompanies,secConnectorStatus:scan.secConnectorStatus,reasonCodes:scan.reasonCodes,newEvidence:scan.newEvidence,failedSources:scan.failedSources.length}));if(scan.status==='SYSTEM_FAILURE')process.exitCode=2}
  catch(e){appendJournal(root,'scans.jsonl',[{id:'scan-'+(process.env.GITHUB_RUN_ID?process.env.GITHUB_RUN_ID+'-'+(process.env.GITHUB_RUN_ATTEMPT||1):new Date().toISOString()),startedAt:new Date().toISOString(),status:'SYSTEM_FAILURE',companies:[],failedSources:[{ticker:'*',source:'runner',error:e.message}],lastSuccessfulScan:null}]);console.error(e.message);process.exitCode=1}
 }

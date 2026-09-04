@@ -55,7 +55,7 @@ test('mock SEC scan creates complete OPEN evidence, reruns deduplicate and failu
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
 test('rate-limit responses block further requests to the host for the run',async()=>{
- let requests=0;const client=makeClient({resolver:async()=>[{address:'93.184.216.34',family:4}],interval:0,wait:async()=>{},fetcher:async()=>{requests++;return new Response('',{status:429})}});
+ let requests=0;const client=makeClient({userAgent:'ARGUS-Observer/1.1 contact:observer@example.org',resolver:async()=>[{address:'93.184.216.34',family:4}],interval:0,wait:async()=>{},fetcher:async()=>{requests++;return new Response('',{status:429})}});
  await assert.rejects(client('https://www.sec.gov/a'),/HTTP_429/);await assert.rejects(client('https://www.sec.gov/b'),/BLOCKED_FOR_RUN/);assert.equal(requests,1);
 });
 test('committed observer journals have valid hash chains',()=>{for(const f of ['events.jsonl','scans.jsonl','documents.jsonl'])assert.ok(validateChain(readJournal(process.cwd(),f)))});

@@ -20,6 +20,7 @@ export function secUserAgent(contact=process.env.SEC_CONTACT||'https://github.co
  if(/[\r\n]/.test(contact)||!(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)||/^https:\/\/github\.com\/zachor-sketch\/argus-dashboard\/issues$/.test(contact)))throw Error('INVALID_SEC_CONTACT');
  return `ARGUS-Observer/1.1 zachor-sketch contact:${contact}`;
 }
+export function hasSECContactEmail(userAgent){return /contact:[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userAgent)&&!/@users\.noreply\.github\.com$/i.test(userAgent)}
 // Pin the validated DNS addresses to the TLS request, avoiding a validation/fetch DNS-rebinding gap.
 export function pinnedFetch(url,{headers,signal,addresses}){
  return new Promise((resolve,reject)=>{const req=https.request(url,{headers,signal,lookup:(_host,options,callback)=>options.all?callback(null,addresses):callback(null,addresses[0].address,addresses[0].family)},res=>{
@@ -38,6 +39,7 @@ export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:
   let url=original;const visited=new Set();
   for(let hop=0;hop<=maxRedirects;hop++){
    const u=safeURL(url);if(visited.has(u.href))throw Error('REDIRECT_LOOP');visited.add(u.href);
+   if(['www.sec.gov','data.sec.gov'].includes(u.hostname)&&!hasSECContactEmail(userAgent))throw Error('SEC_CONTACT_EMAIL_REQUIRED');
    if(blocked.has(u.hostname))throw Error('SOURCE_BLOCKED_FOR_RUN');
    let timer;const addresses=await Promise.race([resolver(u.hostname),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DNS_TIMEOUT')),10000)})]).finally(()=>clearTimeout(timer));
    if(!addresses.length||addresses.some(a=>!publicAddress(a.address)))throw Error('UNSAFE_DNS_ADDRESS');
@@ -63,5 +65,5 @@ export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:
  };
  // Even accidental concurrent callers share the same serial rate limiter.
  const client=url=>{const next=tail.then(()=>request(url));tail=next.catch(()=>{});return next};
- client.finalURL=url=>finalURLs.get(url)||url;client.diagnostics=()=>({blockedHosts:[...blocked],requests:structuredClone(diagnostics)});return client;
+ client.finalURL=url=>finalURLs.get(url)||url;client.diagnostics=()=>({contactEmailConfigured:hasSECContactEmail(userAgent),blockedHosts:[...blocked],requests:structuredClone(diagnostics)});return client;
 }

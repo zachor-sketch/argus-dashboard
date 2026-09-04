@@ -71,10 +71,17 @@ test('global SEC outage plus 31 usable IR companies is SYSTEM_FAILURE, never hea
  companies[0]={...companies[0],ok:true,secSubmissionsSuccessful:true,secSuccessful:true};assert.equal(classifyScan(companies,[],100,{blockedHosts:['www.sec.gov']}).status,'SYSTEM_FAILURE');
 });
 test('SEC denial diagnostics retain bounded evidence and never retry the denied host',async()=>{
- let calls=0;const client=makeClient({resolver,wait:async()=>{},fetcher:async()=>{calls++;return new Response('<title>SEC.gov | Your Request Originates from an Undeclared Automated Tool</title>'+ 'x'.repeat(10000),{status:403,headers:{server:'AkamaiGHost','content-type':'text/html'}})}});
+ let calls=0;const client=makeClient({userAgent:secUserAgent('observer@example.org'),resolver,wait:async()=>{},fetcher:async()=>{calls++;return new Response('<title>SEC.gov | Your Request Originates from an Undeclared Automated Tool</title>'+ 'x'.repeat(10000),{status:403,headers:{server:'AkamaiGHost','content-type':'text/html'}})}});
  await assert.rejects(client('https://www.sec.gov/files/company_tickers.json'),/HTTP_403/);
  await assert.rejects(client('https://www.sec.gov/Archives/anything'),/SOURCE_BLOCKED_FOR_RUN/);
  const diagnostic=client.diagnostics();assert.equal(calls,1);assert.deepEqual(diagnostic.blockedHosts,['www.sec.gov']);assert.equal(diagnostic.requests[0].denialCategory,'UNDECLARED_AUTOMATED_TOOL');assert.equal(diagnostic.requests[0].bodySampleBytes,4096);assert.equal(diagnostic.requests[0].bodySampleSha256.length,64);
+});
+test('missing contact email cannot send SEC requests, while issuer access remains available',async()=>{
+ for(const contact of ['https://github.com/zachor-sketch/argus-dashboard/issues','123+owner@users.noreply.github.com']){
+  let calls=0;const client=makeClient({userAgent:secUserAgent(contact),resolver,wait:async()=>{},fetcher:async()=>{calls++;return new Response('issuer content')}});
+  await assert.rejects(client('https://data.sec.gov/submissions/CIK0000896878.json'),/SEC_CONTACT_EMAIL_REQUIRED/);assert.equal(calls,0);
+  assert.equal(await client('https://issuer.com/'),'issuer content');assert.equal(calls,1);
+ }
 });
 test('actual scan with failed SEC and dated IR is journaled as systemic failure',async()=>{
  const directory=fs.mkdtempSync(path.join(os.tmpdir(),'argus-sec-outage-')),company=MONITORS.find(c=>c.ticker==='INTU');
