@@ -3,14 +3,29 @@ import {makeClient,publicAddress,safeURL,secUserAgent} from '../scripts/observer
 import {resolveSEC,assertSECIdentity} from '../scripts/observer-sec.mjs';
 import {runObserver} from '../scripts/observer-run.mjs';
 import {readJournal} from '../scripts/observer-store.mjs';
-import {MONITORS} from '../lib/observer-config.js';
+import {MONITORS,OBSERVER_CONFIG} from '../lib/observer-config.js';
 import {SEC_CIK_SEED} from '../lib/sec-cik-seed.js';
 import {classifyScan,observerHealth,scanSystemFailure} from '../lib/observer-model.js';
 const resolver=async()=>[{address:'93.184.216.34',family:4}];
 test('safe relative and cross-host HTTPS redirects are bounded, rate limited and DNS-pinned',async()=>{
- const calls=[],delays=[];const client=makeClient({resolver,wait:async ms=>delays.push(ms),fetcher:async(url,options)=>{calls.push({url,options});return calls.length===1?new Response(null,{status:301,headers:{location:'/news'}}):calls.length===2?new Response(null,{status:302,headers:{location:'https://ir.issuer.com/releases'}}):new Response('Issuer results') }});
- assert.equal(await client('https://issuer.com/'),'Issuer results');assert.equal(calls.length,3);assert.equal(client.finalURL('https://issuer.com/'),'https://ir.issuer.com/releases');assert.ok(delays[1]>900);
+ // Advance only simulated time: CI scheduling cannot consume the request interval.
+ let clock=Date.parse('2026-09-04T00:00:00Z');
+ const calls=[],delays=[];const client=makeClient({resolver,now:()=>clock,wait:async ms=>{delays.push(ms);clock+=ms},fetcher:async(url,options)=>{calls.push({url,options});return calls.length===1?new Response(null,{status:301,headers:{location:'/news'}}):calls.length===2?new Response(null,{status:302,headers:{location:'https://ir.issuer.com/releases'}}):new Response('Issuer results') }});
+ assert.equal(await client('https://issuer.com/'),'Issuer results');assert.equal(calls.length,3);assert.equal(client.finalURL('https://issuer.com/'),'https://ir.issuer.com/releases');
+ assert.equal(OBSERVER_CONFIG.requestIntervalMs,1100);assert.deepEqual(delays,[0,1100,1100]);
  assert.ok(calls.every(c=>c.options.redirect==='manual'&&c.options.addresses[0].address==='93.184.216.34'));
+});
+test('serial and concurrent callers share the rate limiter and subtract elapsed request time',async()=>{
+ const start=Date.parse('2026-09-04T00:00:00Z');let clock=start;
+ const delays=[],starts=[];
+ const client=makeClient({resolver,now:()=>clock,wait:async ms=>{delays.push(ms);clock+=ms},fetcher:async()=>{starts.push(clock);clock+=250;return new Response('ok')}});
+ await client('https://issuer.com/first');
+ await Promise.all([client('https://issuer.com/second'),client('https://ir.issuer.com/third')]);
+ assert.deepEqual(delays,[0,850,850]);
+ assert.deepEqual(starts,[start,start+1100,start+2200]);
+ clock+=1100;
+ await client('https://issuer.com/after-idle');
+ assert.deepEqual(delays,[0,850,850,0]);
 });
 test('unsafe redirects and private DNS are rejected before any destination request',async()=>{
  for(const location of ['http://issuer.com/','ftp://issuer.com/','https://127.0.0.1/','https://2130706433/','https://[::1]/','https://user:pass@issuer.com/','https://issuer.com:8443/','https://metadata.google.internal/']){

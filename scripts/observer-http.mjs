@@ -33,7 +33,7 @@ export async function denialDiagnostic(response){
  const sample=Buffer.concat(chunks).toString('utf8'),title=(sample.match(/<title[^>]*>([\s\S]*?)<\/title>/i)||[])[1]?.replace(/\s+/g,' ').slice(0,200)||null;
  return {bodySampleBytes:bytes,bodySampleSha256:createHash('sha256').update(Buffer.concat(chunks)).digest('hex'),title,denialCategory:/undeclared automated tool/i.test(sample)?'UNDECLARED_AUTOMATED_TOOL':/rate threshold|rate limit|too many requests/i.test(sample)?'RATE_LIMIT':/access denied/i.test(sample)?'ACCESS_DENIED':'UNSPECIFIED',reference:(sample.match(/(?:Reference(?:\s+ID)?\s*[:#]?)[^<\r\n]{0,160}/i)||[])[0]||null};
 }
-export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:true,verbatim:true}),wait=sleep,userAgent=secUserAgent(),interval=C.requestIntervalMs,maxRedirects=4}={}){
+export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:true,verbatim:true}),wait=sleep,now=Date.now,userAgent=secUserAgent(),interval=C.requestIntervalMs,maxRedirects=4}={}){
  let last=0,tail=Promise.resolve();const blocked=new Set(),finalURLs=new Map(),diagnostics=[];
  const request=async original=>{
   let url=original;const visited=new Set();
@@ -43,7 +43,7 @@ export function makeClient({fetcher=pinnedFetch,resolver=host=>lookup(host,{all:
    if(blocked.has(u.hostname))throw Error('SOURCE_BLOCKED_FOR_RUN');
    let timer;const addresses=await Promise.race([resolver(u.hostname),new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('DNS_TIMEOUT')),10000)})]).finally(()=>clearTimeout(timer));
    if(!addresses.length||addresses.some(a=>!publicAddress(a.address)))throw Error('UNSAFE_DNS_ADDRESS');
-   await wait(Math.max(0,interval-(Date.now()-last)));last=Date.now();
+   await wait(Math.max(0,interval-(now()-last)));last=now();
    const r=await fetcher(u.href,{headers:{'User-Agent':userAgent,Accept:'application/json, application/xml, text/html, text/plain','Accept-Encoding':'identity'},signal:AbortSignal.timeout(15000),redirect:'manual',addresses});
    // Respect denial/throttling for the entire host for the rest of this scan; no rotated identity or proxy.
    if([403,429].includes(r.status))blocked.add(u.hostname);
