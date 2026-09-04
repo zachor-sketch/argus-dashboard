@@ -1,4 +1,4 @@
-import {publicationDate} from '../lib/observer-rules.js';
+import {publicationDate,attributes} from '../lib/observer-rules.js';
 import {issuerFeed,issuerLinks,isIndexURL,externalIssuerDocuments} from '../lib/issuer-discovery.js';
 // Bounded discovery through actual issuer links; never synthesize article URLs or treat an index as a release.
 export async function collectIssuer({company,get,ingest,failure,maxDocuments=4,maxDiscoveryPages=4,maxDepth=2}){
@@ -10,13 +10,13 @@ export async function collectIssuer({company,get,ingest,failure,maxDocuments=4,m
    if(assumedIndex&&pages>=maxDiscoveryPages||!assumedIndex&&documents>=maxDocuments){limited=true;continue}
    if(assumedIndex)pages++;else documents++;attempts++;
    if(item.kind==='manual')throw Error('UNSUPPORTED_DOCUMENT_FORMAT_MANUAL_REVIEW');
-   sources.push(item.url);const html=await get(item.url),base=get.finalURL?.(item.url)||item.url,feed=issuerFeed(html,base),links=feed||issuerLinks(html,base),date=publicationDate(html,{dateOrder:company.dateOrder,headerDate:company.headerDate});
+   sources.push(item.url);const html=await get(item.url),base=get.finalURL?.(item.url)||item.url,discoveryLanguage=attributes(html.match(/<html\b[^>]*>/i)?.[0]||'').lang||item.discoveryLanguage,feed=issuerFeed(html,base,discoveryLanguage),links=feed||issuerLinks(html,base),date=publicationDate(html,{dateOrder:company.dateOrder,headerDate:company.headerDate});
    const index=!!feed||isIndexURL(base)||!date&&!item.date&&links.length>0;
    if(index){
     for(const link of externalIssuerDocuments(html,base)){if(external.has(link.url))continue;if(external.size>=maxDocuments){limited=true;break}external.add(link.url);failure(link.url,Error('EXTERNAL_DOCUMENT_REQUIRES_MANUAL_REVIEW'),{discoveredFrom:link.discoveredFrom})}
     if(!assumedIndex){documents--;pages++}if(!links.length)throw Error('IR_DISCOVERY_UNSUPPORTED');
     if(pages>maxDiscoveryPages){limited=true;continue}
-    queue.push(...links.slice(0,20).map(l=>({...l,depth:item.depth+1})));if(links.length>20)limited=true;
+    queue.push(...links.slice(0,20).map(l=>({...l,depth:item.depth+1,discoveryLanguage})));if(links.length>20)limited=true;
     continue;
    }
    if(assumedIndex){pages--;documents++}if(documents>maxDocuments){limited=true;continue}

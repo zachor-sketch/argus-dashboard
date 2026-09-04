@@ -19,7 +19,7 @@ The exact source URLs and errors remain immutable in the starting scan's 19 `fai
 
 ## Safe changes
 
-- Infer translation filtering from the HTML language only when the root path has no language. Unknown language remains unknown. This prevents an English discovery page from selecting a legacy French translation and applying incompatible date rules.
+- Infer translation filtering from the HTML language only when the root path has no language, and carry that language through discovered RSS/Atom feeds. Unknown language remains unknown. A real-run trace showed Givaudan's mixed-language `/rss` feed was the remaining route to the legacy French article; a page-to-feed regression covers that path.
 - Inventory at most four distinct external financial-document links per issuer scan, with the exact `discoveredFrom` URL. Never fetch or parse them, infer their contents, or count them as usable evidence. More links remain explicitly bounded backlog. This reveals previously hidden MAYA/MAGNA and issuer-CDN gaps without broadening network access.
 - Classify discovery backlog and external manual-review gaps explicitly. Use `NO_USABLE_IR_EVIDENCE` for the aggregate failure; preserve the underlying HTTP, parsing or format error independently. Historical records remain unchanged.
 
@@ -27,4 +27,4 @@ The failure-record count may increase because previously omitted external docume
 
 ## Validation
 
-48 unit tests, including four new regressions for locale handling, bounded external-link provenance, unsafe-link rejection and access-failure classification. Existing baseline/source hashes, SEC identity, DNS pinning, redirects, rate limits, append-only journals and health classification tests remain required. A real post-change scan and Pages deployment provide the final measured result.
+49 unit tests, including five new regressions for locale handling, RSS propagation, bounded external-link provenance, unsafe-link rejection and access-failure classification. Existing baseline/source hashes, SEC identity, DNS pinning, redirects, rate limits, append-only journals and health classification tests remain required. A real post-change scan and Pages deployment provide the final measured result.

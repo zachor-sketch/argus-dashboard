@@ -22,3 +22,7 @@ test('denied access retains its actual cause and does not manufacture a date par
  const errors=[];const result=await collectIssuer({company:{ir:'https://issuer.com/investors'},get:async()=>{throw Error('HTTP_403')},ingest:async()=>assert.fail(),failure:(url,e)=>errors.push(e.message)});
  assert.equal(result.usable,false);assert.deepEqual(errors,['HTTP_403','NO_USABLE_IR_EVIDENCE']);assert.equal(failureCategory(errors[0]),'LEGITIMATE_403_ANTIBOT');assert.equal(failureCategory(errors[1]),'NO_USABLE_EVIDENCE');assert.equal(failureCategory('IR_DISCOVERY_LIMIT_REQUIRES_REVIEW'),'BOUNDED_DISCOVERY_BACKLOG');assert.equal(failureCategory('EXTERNAL_DOCUMENT_REQUIRES_MANUAL_REVIEW'),'EXTERNAL_DOCUMENT_MANUAL_REVIEW');
 });
+test('issuer page language follows discovered RSS links and filters mixed-language feed entries',async()=>{
+ const calls=[],ingested=[];const result=await collectIssuer({company:{ir:'https://issuer.com/investors'},get:async url=>{calls.push(url);if(url.endsWith('/investors'))return '<html lang="en"><a href="/rss">RSS</a></html>';if(url.endsWith('/rss'))return '<rss><channel><item><link>/fr/releases/old</link><pubDate>Thu, 03 Sep 2026 10:00:00 GMT</pubDate></item><item><link>/releases/current</link><pubDate>Thu, 03 Sep 2026 10:00:00 GMT</pubDate></item></channel></rss>';return '<p>Quarterly results</p>'},ingest:async url=>ingested.push(url),failure:()=>{}});
+ assert.equal(result.usable,true);assert.deepEqual(ingested,['https://issuer.com/releases/current']);assert.equal(calls.some(url=>url.includes('/fr/')),false);
+});
