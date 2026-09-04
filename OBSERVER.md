@@ -34,13 +34,19 @@ Sources: [SEC APIs](https://www.sec.gov/search-filings/edgar-application-program
 
 ## Resilience update
 
-The SEC client uses a stable identifying User-Agent. Set the GitHub repository variable `SEC_CONTACT` to a monitored contact email; until supplied, SEC requests are blocked locally and system health remains red. The repository URL is used only for non-SEC requests. HTTP 403/429 still stops requests to that host for the run: no proxies, identity rotation, or bypass attempts.
+The SEC client uses a stable identifying User-Agent. Set the GitHub repository secret `SEC_CONTACT` to a monitored contact email; until supplied, SEC requests are blocked locally and system health remains red. The repository URL is used only for non-SEC requests. HTTP 403/429 still stops requests to that host for the run: no proxies, identity rotation, or bypass attempts.
 
 The SEC directory is no longer a single point of failure. Lookup order is the official directory, previously validated append-only SEC_IDENTITY records, then the pinned SEC-derived candidate seed in `lib/sec-cik-seed.js`. The seed covers 89 of 91 SEC-applicable universe tickers; FISV and LLOY remain unresolved rather than guessed aliases. Candidate data comes from [SEC CIK Mapper](https://github.com/jadchaar/sec-cik-mapper); its upstream commit, source URL, retrieval date and content hash are retained. Candidates are never evidence: every scan validates both CIK and ticker against the live SEC submissions response before accepting filings. An unavailable API or identity conflict leaves the company incomplete.
 
 HTTPS redirects are followed for at most four hops. Every hop is separately rate-limited and checked for credentials, ports, scheme, loop, private/reserved IPs and DNS results. TLS requests pin the validated public DNS addresses, preventing DNS rebinding between validation and connection. PDFs, size limits, denial responses and timeouts retain fail-closed behavior.
 
 Scan classification is explicit: SUCCESS requires all company sources complete and no failed sources. PARTIAL requires at least one complete company, at least 20% usable sources, and no global SEC connector failure. SYSTEM_FAILURE covers zero complete companies, zero fully SEC-successful companies in an SEC-applicable universe, a blocked required SEC host, fewer than 20% usable sources, an interrupted/budget-exhausted scan, or integrity failure. A usable partial source is not complete evidence and never makes its company green. Review timing and material events remain additional independent red gates. The dashboard shows classification, SEC success counts, usable count, threshold, and every remaining failed source. Historical journal entries retain their original classifications.
+
+## Phase 2 coverage hardening
+
+Operational issuer routes and the verified LLOY → LYG SEC identity alias are isolated in `lib/observer-sources.js`; imported research is unchanged. The alias requires both the pinned issuer CIK and live SEC ticker validation. Issuer discovery follows bounded same-origin links, RSS/Atom entries and scoped article cards. Publication dates retain their article/feed provenance; ambiguous dates and indexes cannot become release evidence. Explicit issuer date-format configuration is documented with source links.
+
+Discovery retains four-document limits and explicitly reports unvisited backlog, denied sources, PDFs and unsupported regulatory coverage. Seven recoverable non-US issuer profiles can supply partial evidence; they cannot become complete merely through HTML discovery. See [the exact 29-source starting audit](OBSERVER_COVERAGE_PHASE2.md). All workflow contact configuration now uses the repository **secret** `SEC_CONTACT`, including the diagnostic.
 
 ## Regulatory outage correction
 

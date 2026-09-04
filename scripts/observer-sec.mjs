@@ -11,3 +11,8 @@ export function resolveSEC(ticker,liveMap,documents,seed=SEC_CIK_SEED){
 export function assertSECIdentity(data,entry){
  if(Number(data.cik)!==Number(entry.cik)||!Array.isArray(data.tickers)||!data.tickers.map(t=>t.replace('.','-')).includes(entry.ticker))throw Error('SEC_TICKER_IDENTITY_MISMATCH');
 }
+export function resolveCompanySEC(company,liveMap,documents){
+ const entry=resolveSEC(company.secTicker||company.ticker,liveMap,documents);
+ if(company.secTicker&&(!company.secCIK||Number(entry.cik)!==Number(company.secCIK)||!company.sourceRoute?.source))throw Error('SEC_ALIAS_IDENTITY_UNVERIFIED');
+ return entry;
+}

@@ -84,7 +84,7 @@ test('missing contact email cannot send SEC requests, while issuer access remain
  }
 });
 test('actual scan with failed SEC and dated IR is journaled as systemic failure',async()=>{
- const directory=fs.mkdtempSync(path.join(os.tmpdir(),'argus-sec-outage-')),company=MONITORS.find(c=>c.ticker==='INTU');
+ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'argus-sec-outage-')),company={...MONITORS.find(c=>c.ticker==='INTU'),ir:'https://issuer.com/releases/current.html'};
  const client=async url=>{if(url.includes('sec.gov'))throw Error('HTTP_403');return '<html><meta property="article:published_time" content="2026-09-03T10:00:00Z"><p>'+ 'Revenue increased. '.repeat(20)+'</p></html>'};
  try{const scan=await runObserver({directory,companies:[company],client,macroSources:[],now:new Date('2026-09-04T10:00:00Z'),runId:'outage'});assert.equal(scan.status,'SYSTEM_FAILURE');assert.equal(scan.usableCompanies,1);assert.equal(scan.completeCompanies,0);assert.equal(scan.secSuccessfulCompanies,0);assert.equal(scan.companies[0].ok,false);assert.equal(readJournal(directory,'scans.jsonl')[0].status,'SYSTEM_FAILURE')}
  finally{fs.rmSync(directory,{recursive:true,force:true})}
