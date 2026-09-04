@@ -21,7 +21,14 @@ try{
  }
  await page.locator('#observer-queue summary').first().click();await page.locator('#observer-queue input').fill('Reviewed fixture only; no decision changed.');await page.locator('#observer-queue button').click();
  assert.equal(await page.locator('#observer-queue .observer-event').count(),0);assert.equal(await page.locator('#board-rows tr').first().locator('td').nth(2).innerText(),locked);
+ const {MONITORS}=await import('../lib/observer-config.js');
+ await page.route('**/observer/scans.jsonl',r=>r.fulfill({body:JSON.stringify({status:'PARTIAL',usableCompanies:20,minimumUsableCompanies:20,companies:MONITORS.map((c,i)=>({ticker:c.ticker,ok:i<20,usable:i<20,lastSuccessfulScan:i<20?'2026-09-04T06:17:00Z':null,coverage:i<20?'SEC_FILINGS_AND_EXHIBITS':'UNAVAILABLE'})),failedSources:[{ticker:'INTU',source:'Issuer',error:'PDF_REQUIRES_MANUAL_REVIEW'}]})+'\n'}));
+ await page.route('https://api.github.com/**',r=>r.fulfill({json:{workflow_runs:[{event:'workflow_dispatch',status:'completed',conclusion:'success'}]}}));
+ await page.reload();await page.waitForFunction(()=>document.querySelector('#observer .observer-warning')?.textContent.includes('Partial coverage'));
+ assert.match(await page.locator('#observer .section-heading').innerText(),/PARTIAL/);
+ assert.equal(await page.locator('#observer tbody tr').filter({has:page.locator('bdi',{hasText:/^IONQ$/})}).locator('.observer-state.green').count(),1);
+ assert.equal(await page.locator('#observer tbody tr').filter({has:page.locator('bdi',{hasText:/^INTU$/})}).locator('.observer-state.red').count(),1);
  await page.route('https://api.github.com/**',r=>r.abort());await page.reload();await page.locator('#observer .observer-warning').waitFor();
  assert.equal(await page.locator('#observer .observer-state.green').count(),0);assert.deepEqual(errors,[]);
- console.log('PASS: Observer bilingual responsive status, visible failed/unavailable workflow, 100 profiles, material-event review routing, local acknowledgment, unchanged locked price.');
+ console.log('PASS: Observer bilingual responsive status, failed/unavailable workflow, PARTIAL versus per-company fail-closed health, 100 profiles, review routing, local acknowledgment, unchanged lock.');
 }finally{if(browser)await browser.close();server.close()}})().catch(e=>{console.error(e);process.exitCode=1});

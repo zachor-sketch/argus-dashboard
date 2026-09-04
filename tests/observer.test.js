@@ -45,17 +45,17 @@ test('fresh scan does not override overdue review, material evidence or failed/u
 });
 test('mock SEC scan creates complete OPEN evidence, reruns deduplicate and failures never become current',async()=>{
  const dir=temp(),now=new Date('2026-09-04T06:17:00Z'),before=hash(B);
- const client=async url=>url.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):url.includes('submissions')?JSON.stringify({tickers:['INTU'],filings:{recent:{accessionNumber:['0000000123-26-000001'],form:['8-K'],filingDate:['2026-09-03'],acceptanceDateTime:['2026-09-03T15:00:00Z'],primaryDocument:['report.htm'],items:['2.02']}}}):'<html><p>Quarterly financial results: Revenue grew 12 percent to $100 million. Guidance was lowered to 5 percent. Free cash flow was $12 million during the second quarter of 2026.</p></html>';
+ const client=async url=>url.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):url.includes('submissions')?JSON.stringify({cik:'123',tickers:['INTU'],filings:{recent:{accessionNumber:['0000000123-26-000001'],form:['8-K'],filingDate:['2026-09-03'],acceptanceDateTime:['2026-09-03T15:00:00Z'],primaryDocument:['report.htm'],items:['2.02']}}}):'<html><p>Quarterly financial results: Revenue grew 12 percent to $100 million. Guidance was lowered to 5 percent. Free cash flow was $12 million during the second quarter of 2026.</p></html>';
  try{
   const first=await runObserver({directory:dir,companies:[company],client,now,runId:'fixture-1',macroSources:[]});assert.equal(first.status,'SUCCESS');assert.ok(first.newEvidence>0);
   const events=readJournal(dir,'events.jsonl');assert.ok(events.some(e=>e.status==='OPEN'));for(const key of ['ticker','timestamp','source','sourceAuthorityTier','eventType','rawFact','variable','likelyDirection','materiality','reviewRequired'])assert.ok(key in events[0],key);
   const second=await runObserver({directory:dir,companies:[company],client,now,runId:'fixture-2',macroSources:[]});assert.equal(second.newEvidence,0);
-  const failed=await runObserver({directory:dir,companies:[company],client:async()=>{throw Error('HTTP_429')},now,runId:'fixture-3',macroSources:[]});assert.equal(failed.status,'PARTIAL_OR_FAILED');assert.equal(failed.companies[0].ok,false);assert.ok(failed.failedSources.length);
+  const failed=await runObserver({directory:dir,companies:[company],client:async()=>{throw Error('HTTP_429')},now,runId:'fixture-3',macroSources:[]});assert.equal(failed.status,'SYSTEM_FAILURE');assert.equal(failed.companies[0].ok,false);assert.ok(failed.failedSources.length);
   assert.equal(hash(B),before);
  }finally{fs.rmSync(dir,{recursive:true,force:true})}
 });
 test('rate-limit responses block further requests to the host for the run',async()=>{
- let requests=0;const client=makeClient({interval:0,wait:async()=>{},fetcher:async()=>{requests++;return new Response('',{status:429})}});
+ let requests=0;const client=makeClient({resolver:async()=>[{address:'93.184.216.34',family:4}],interval:0,wait:async()=>{},fetcher:async()=>{requests++;return new Response('',{status:429})}});
  await assert.rejects(client('https://www.sec.gov/a'),/HTTP_429/);await assert.rejects(client('https://www.sec.gov/b'),/BLOCKED_FOR_RUN/);assert.equal(requests,1);
 });
 test('committed observer journals have valid hash chains',()=>{for(const f of ['events.jsonl','scans.jsonl','documents.jsonl'])assert.ok(validateChain(readJournal(process.cwd(),f)))});
@@ -65,6 +65,6 @@ test('append-only comparison tolerates Windows line endings but rejects edits an
  assert.throws(()=>assertAppendOnly('{"id":"a"}\n',''),/APPEND_ONLY/);
 });
 test('official macro titles become scoped transmission reviews with original provenance',async()=>{
- const dir=temp(),url='https://www.federalreserve.gov/feeds/press_all.xml',client=async u=>u.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):u.includes('submissions')?JSON.stringify({tickers:['INTU'],filings:{recent:{accessionNumber:[],form:[],filingDate:[],primaryDocument:[]}}}):'<rss><channel><item><title>Federal funds rate decision</title><link>https://www.federalreserve.gov/newsevents/fixture.htm</link><pubDate>Thu, 03 Sep 2026 14:00:00 GMT</pubDate></item></channel></rss>';
+ const dir=temp(),url='https://www.federalreserve.gov/feeds/press_all.xml',client=async u=>u.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):u.includes('submissions')?JSON.stringify({cik:'123',tickers:['INTU'],filings:{recent:{accessionNumber:[],form:[],filingDate:[],primaryDocument:[]}}}):'<rss><channel><item><title>Federal funds rate decision</title><link>https://www.federalreserve.gov/newsevents/fixture.htm</link><pubDate>Thu, 03 Sep 2026 14:00:00 GMT</pubDate></item></channel></rss>';
  try{await runObserver({directory:dir,companies:[company],client,now:new Date('2026-09-04T06:17:00Z'),runId:'macro-fixture',macroSources:[{url,tier:'T2_OFFICIAL_REGULATOR',terms:/federal funds/i,variable:'Funding costs',sectors:null}]});const events=readJournal(dir,'events.jsonl');assert.equal(events.length,1);assert.equal(events[0].eventType,'macro_transmission');assert.equal(events[0].status,'OPEN');assert.match(events[0].variable,/Funding costs/);assert.equal(events[0].sourceAuthorityTier,'T2_OFFICIAL_REGULATOR')}finally{fs.rmSync(dir,{recursive:true,force:true})}
 });

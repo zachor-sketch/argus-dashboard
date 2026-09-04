@@ -5,24 +5,10 @@ import {extractEvidence,filingRows,documentLinks,publicationDate,plainText} from
 import {appendJournal,readJournal,assertBaseline,hash,validateChain,JOURNALS} from './observer-store.mjs';
 
 const root=path.resolve(fileURLToPath(new URL('..',import.meta.url)));
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-export function makeClient({fetcher=fetch,wait=sleep,userAgent='ARGUS Observer/1.0 zachor-sketch (https://github.com/zachor-sketch/argus-dashboard)',interval=C.requestIntervalMs}={}){
- let last=0;const blocked=new Set();
- return async url=>{
-  const u=new URL(url);if(u.protocol!=='https:'||u.username||u.password)throw Error('UNSAFE_SOURCE_URL');
-  if(blocked.has(u.hostname))throw Error('SOURCE_BLOCKED_FOR_RUN');
-  await wait(Math.max(0,interval-(Date.now()-last)));last=Date.now();
-  const r=await fetcher(url,{headers:{'User-Agent':userAgent,Accept:'application/json, application/xml, text/html, text/plain'},signal:AbortSignal.timeout(15000),redirect:'error'});
-  // No anti-bot bypasses or rapid retries. Retry only on the next daily run.
-  if([403,429].includes(r.status))blocked.add(u.hostname);
-  if(!r.ok)throw Error('HTTP_'+r.status);
-  if(Number(r.headers.get('content-length'))>C.maxDocumentBytes)throw Error('DOCUMENT_TOO_LARGE');
-  if(/application\/pdf/i.test(r.headers.get('content-type')||''))throw Error('PDF_REQUIRES_MANUAL_REVIEW');
-  const reader=r.body.getReader();let size=0;const chunks=[];
-  try{while(true){const {value,done}=await reader.read();if(done)break;size+=value.byteLength;if(size>C.maxDocumentBytes)throw Error('DOCUMENT_TOO_LARGE');chunks.push(Buffer.from(value))}}finally{await reader.cancel()}
-  return Buffer.concat(chunks).toString('utf8');
- };
-}
+export {makeClient} from './observer-http.mjs';
+import {makeClient} from './observer-http.mjs';
+import {resolveSEC,assertSECIdentity} from './observer-sec.mjs';
+import {classifyScan} from '../lib/observer-model.js';
 export async function runObserver({directory=root,client=makeClient(),companies=MONITORS,now=new Date(),runId=process.env.GITHUB_RUN_ID?process.env.GITHUB_RUN_ID+'-'+(process.env.GITHUB_RUN_ATTEMPT||1):now.toISOString(),macroSources=MACRO_SOURCES}={}){
  assertBaseline();for(const name of JOURNALS)validateChain(readJournal(directory,name));
  const started=now.toISOString(),cutoff=now.getTime()-C.lookbackDays*86400000,deadline=Date.now()+16*60*1000;
@@ -51,10 +37,10 @@ export async function runObserver({directory=root,client=makeClient(),companies=
   const before=failedSources.length;let secOK=false,irOK=false,sources=[];
   try{
    if(!company.secApplicable)throw Error('SEC_NOT_APPLICABLE');
-   const ticker=company.ticker.replace('.','-'),entry=Object.values(tickerMap).find(r=>r.ticker===ticker);
-   if(!entry)throw Error('SEC_TICKER_MAPPING_UNAVAILABLE');
-   const cik=String(entry.cik_str).padStart(10,'0'),url=`https://data.sec.gov/submissions/CIK${cik}.json`;sources.push(url);
-   const data=JSON.parse(await get(url));if(!data.tickers?.includes(ticker))throw Error('SEC_TICKER_IDENTITY_MISMATCH');
+   const entry=resolveSEC(company.ticker,tickerMap,existing),ticker=entry.ticker;
+   const cik=entry.cik,url=`https://data.sec.gov/submissions/CIK${cik}.json`;sources.push(url);
+   const data=JSON.parse(await get(url));assertSECIdentity(data,entry);
+   documents.push({id:hash(['SEC_IDENTITY',ticker,cik]),kind:'SEC_IDENTITY',ticker,cik,source:url,mappingSource:entry.mappingSource,validated:true,observedAt:started});
    const filings=filingRows(data,companyCutoff,now.getTime()).map(r=>({...r,url:`https://www.sec.gov/Archives/edgar/data/${Number(cik)}/${r.accession.replaceAll('-','')}/${r.document}`})).filter(r=>!complete.has(r.url));
    if(filings.length>C.maxDocumentsPerCompany)failure(company.ticker,url,'FILING_BACKLOG_REQUIRES_NEXT_SCAN');
    for(const filing of filings.slice(0,C.maxDocumentsPerCompany)){
@@ -72,7 +58,7 @@ export async function runObserver({directory=root,client=makeClient(),companies=
   // Issuer site fallback for non-US listings or unavailable SEC coverage. Never treat an IR home page as a release.
   if(!secOK){
    try{
-    sources.push(company.ir);const html=await get(company.ir),links=documentLinks(html,company.ir).filter(x=>x.url!==company.ir);
+    sources.push(company.ir);const html=await get(company.ir),links=documentLinks(html,client.finalURL?.(company.ir)||company.ir).filter(x=>x.url!==company.ir);
     const direct=publicationDate(html);if(direct)await ingest(company,company.ir,direct,'T1_ISSUER');
     if(!links.length&&!direct)throw Error('IR_DISCOVERY_UNSUPPORTED');
     const eligible=links.slice(0,C.maxDocumentsPerCompany);let dated=!!direct;
@@ -83,7 +69,7 @@ export async function runObserver({directory=root,client=makeClient(),companies=
    }catch(e){failure(company.ticker,company.ir,e)}
   }
   const ok=failedSources.length===before&&(secOK||irOK);
-  results.push({ticker:company.ticker,ok,coverage:secOK?'SEC_FILINGS_AND_EXHIBITS':irOK?'PARTIAL_IR':'UNAVAILABLE',sources,lastSuccessfulScan:ok?started:prior?.lastSuccessfulScan||null,attemptedAt:started});
+  results.push({ticker:company.ticker,ok,usable:secOK||irOK,coverage:secOK?'SEC_FILINGS_AND_EXHIBITS':irOK?'PARTIAL_IR':'UNAVAILABLE',sources,lastSuccessfulScan:ok?started:prior?.lastSuccessfulScan||null,attemptedAt:started});
  }
  for(const feed of macroSources){
   try{
@@ -96,11 +82,11 @@ export async function runObserver({directory=root,client=makeClient(),companies=
   }catch(e){failure('*',feed.url,e)}
  }
  const added=appendJournal(directory,'events.jsonl',events);appendJournal(directory,'documents.jsonl',documents);
- const previous=readJournal(directory,'scans.jsonl').at(-1),ok=failedSources.length===0&&results.length===companies.length&&results.every(r=>r.ok);
- const scan={id:'scan-'+runId,startedAt:started,finishedAt:new Date().toISOString(),status:ok?'SUCCESS':'PARTIAL_OR_FAILED',lastSuccessfulScan:ok?started:previous?.lastSuccessfulScan||null,universeCount:companies.length,companies:results,failedSources,newEvidence:added.length,highMateriality:added.filter(e=>e.materiality==='high').length,windowStart:new Date(cutoff).toISOString(),runUrl:process.env.GITHUB_RUN_ID?`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`:null};
+ const previous=readJournal(directory,'scans.jsonl').at(-1),classification=classifyScan(results,failedSources,companies.length),ok=classification.status==='SUCCESS';
+ const scan={id:'scan-'+runId,startedAt:started,finishedAt:new Date().toISOString(),...classification,lastSuccessfulScan:ok?started:previous?.lastSuccessfulScan||null,universeCount:companies.length,companies:results,failedSources,newEvidence:added.length,highMateriality:added.filter(e=>e.materiality==='high').length,windowStart:new Date(cutoff).toISOString(),runUrl:process.env.GITHUB_RUN_ID?`https://github.com/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`:null};
  appendJournal(directory,'scans.jsonl',[scan]);assertBaseline();return scan;
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
- try{const scan=await runObserver();console.log(JSON.stringify({status:scan.status,companies:scan.companies.length,covered:scan.companies.filter(c=>c.ok).length,newEvidence:scan.newEvidence,failedSources:scan.failedSources.length}));if(scan.status!=='SUCCESS')process.exitCode=2}
- catch(e){appendJournal(root,'scans.jsonl',[{id:'scan-'+(process.env.GITHUB_RUN_ID?process.env.GITHUB_RUN_ID+'-'+(process.env.GITHUB_RUN_ATTEMPT||1):new Date().toISOString()),startedAt:new Date().toISOString(),status:'FAILED',companies:[],failedSources:[{ticker:'*',source:'runner',error:e.message}],lastSuccessfulScan:null}]);console.error(e.message);process.exitCode=1}
+ try{const scan=await runObserver();console.log(JSON.stringify({status:scan.status,companies:scan.companies.length,covered:scan.companies.filter(c=>c.ok).length,newEvidence:scan.newEvidence,failedSources:scan.failedSources.length}));if(scan.status==='SYSTEM_FAILURE')process.exitCode=2}
+ catch(e){appendJournal(root,'scans.jsonl',[{id:'scan-'+(process.env.GITHUB_RUN_ID?process.env.GITHUB_RUN_ID+'-'+(process.env.GITHUB_RUN_ATTEMPT||1):new Date().toISOString()),startedAt:new Date().toISOString(),status:'SYSTEM_FAILURE',companies:[],failedSources:[{ticker:'*',source:'runner',error:e.message}],lastSuccessfulScan:null}]);console.error(e.message);process.exitCode=1}
 }
