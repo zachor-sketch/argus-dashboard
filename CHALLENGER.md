@@ -149,3 +149,5 @@ replacement canonical baseline or validation ledger.
 See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).
 
 See [Phase C underwriting evidence, gates and frozen pilot](CHALLENGER_PHASE_C.md).
+
+Phase C.1 extends the existing underwriting recipe with company-specific signed adjustment bridges and reviewed public quote fallback. It adds no journal namespace or company. Incomplete bridge subtotals cannot become normalized earnings; TNK requires fleet NAV/TCE underwriting. Quotes alone cannot authorize valuation without share, cash/debt and other-claims reviews. See the [C.1 pilot and exact remaining UNKNOWN fields](CHALLENGER_PHASE_C1.md) and [integrity proof](CHALLENGER_PHASE_C1_INTEGRITY.json).

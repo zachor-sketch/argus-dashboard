@@ -36,3 +36,5 @@ Before declaring a release live, confirm that the HTML, JavaScript, and styleshe
 See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).
 
 See [Phase C underwriting evidence, gates and frozen pilot](CHALLENGER_PHASE_C.md).
+
+See [Phase C.1 specialist normalization bridges, PIT quote fallback and pilot](CHALLENGER_PHASE_C1.md), with [protected-byte and anti-anchoring proof](CHALLENGER_PHASE_C1_INTEGRITY.json).
