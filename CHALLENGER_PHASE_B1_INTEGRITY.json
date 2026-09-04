@@ -1,0 +1,123 @@
+{
+  "baselineCommit": "41a634cd785512da2828aa677b44a8ba8a779dc4",
+  "artifacts": [
+    {
+      "file": "ARGUS_AI_Chain_Signal_V10_33.json",
+      "sha256Before": "9e37b9a996a3bd26f766a0aae131806385119bee71d5ec0b55c18aa287f582b6",
+      "sha256After": "9e37b9a996a3bd26f766a0aae131806385119bee71d5ec0b55c18aa287f582b6",
+      "byteIdentical": true
+    },
+    {
+      "file": "ARGUS_Global_Opportunity_Universe_V10_33_AI_Chain_Signal.xlsx",
+      "sha256Before": "25b6cd1b106a70ab42f3163411ef8358d2e7fb05a906e67bf8caaf3493c06085",
+      "sha256After": "25b6cd1b106a70ab42f3163411ef8358d2e7fb05a906e67bf8caaf3493c06085",
+      "byteIdentical": true
+    },
+    {
+      "file": "ARGUS_Master_V10_25.html",
+      "sha256Before": "e8d541ae0ecf3b55ccff74ae2062e4206cba8d38781f8123fe980533a56c6eeb",
+      "sha256After": "e8d541ae0ecf3b55ccff74ae2062e4206cba8d38781f8123fe980533a56c6eeb",
+      "byteIdentical": true
+    },
+    {
+      "file": "ARGUS_Validation_Ledger_V10_25.json",
+      "sha256Before": "e147f7d235737285722c3fddb7760f820df4b01a196cfa09803fe94e71acf960",
+      "sha256After": "e147f7d235737285722c3fddb7760f820df4b01a196cfa09803fe94e71acf960",
+      "byteIdentical": true
+    },
+    {
+      "file": "data.js",
+      "sha256Before": "aa92d54968fba7799f80a10e5b5c7661563282433e8bcd65f1f71b585217c1ed",
+      "sha256After": "aa92d54968fba7799f80a10e5b5c7661563282433e8bcd65f1f71b585217c1ed",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/baseline_v10_25.js",
+      "sha256Before": "3a4056f17901633a2b29007825b854d0a6c558f4c9f2a9cebf372e65e8c8c966",
+      "sha256After": "3a4056f17901633a2b29007825b854d0a6c558f4c9f2a9cebf372e65e8c8c966",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/event_log.js",
+      "sha256Before": "2f2abcafd69be5d04168d168dfde1cce052ca2d03ba8f030c41de85c05e775d4",
+      "sha256After": "2f2abcafd69be5d04168d168dfde1cce052ca2d03ba8f030c41de85c05e775d4",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/market_snapshot.js",
+      "sha256Before": "74a8e1a94768864c81ef623b62aa0068a5187b4ca1d358bdcb22a3f7e1c25cf4",
+      "sha256After": "74a8e1a94768864c81ef623b62aa0068a5187b4ca1d358bdcb22a3f7e1c25cf4",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/portfolio.js",
+      "sha256Before": "78a614173b9e5a8763d549482ea63ccc34e86e80d3fa359ceffa8d6f35a2ed37",
+      "sha256After": "78a614173b9e5a8763d549482ea63ccc34e86e80d3fa359ceffa8d6f35a2ed37",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/proof_ledger.js",
+      "sha256Before": "faf7d5fb0f40828796b9902b2260b92facf6492a79b1b53465d5710482e576c8",
+      "sha256After": "faf7d5fb0f40828796b9902b2260b92facf6492a79b1b53465d5710482e576c8",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/research_shadow.js",
+      "sha256Before": "b694bb75c719573e1241ffbd3ed2cf53db18d6fcf58f7e28c42b5a1daa9322dc",
+      "sha256After": "b694bb75c719573e1241ffbd3ed2cf53db18d6fcf58f7e28c42b5a1daa9322dc",
+      "byteIdentical": true
+    },
+    {
+      "file": "datasets/universe_v10_33.js",
+      "sha256Before": "a10a7efedf275c1f412ba538a354d91fb5d8ca961c2ed6a2ad8279fd024f8f3b",
+      "sha256After": "a10a7efedf275c1f412ba538a354d91fb5d8ca961c2ed6a2ad8279fd024f8f3b",
+      "byteIdentical": true
+    },
+    {
+      "file": "integrity-manifest.json",
+      "sha256Before": "ec14a5828c88eade4164aa85ee332dff5d3866febb15c1cabd3faddd75e0ac27",
+      "sha256After": "ec14a5828c88eade4164aa85ee332dff5d3866febb15c1cabd3faddd75e0ac27",
+      "byteIdentical": true
+    },
+    {
+      "file": "lib/engine_v10_25.js",
+      "sha256Before": "96a0432266ef28f66afe16769a1e40d975ada3a7e63fc2aeec14de2915771312",
+      "sha256After": "96a0432266ef28f66afe16769a1e40d975ada3a7e63fc2aeec14de2915771312",
+      "byteIdentical": true
+    },
+    {
+      "file": "observer/documents.jsonl",
+      "sha256Before": "0ad2147d7efdbca4cc55e96d3b97e77b9201af7b6de1ccefc87b5e910413f1f4",
+      "sha256After": "0ad2147d7efdbca4cc55e96d3b97e77b9201af7b6de1ccefc87b5e910413f1f4",
+      "byteIdentical": true
+    },
+    {
+      "file": "observer/events.jsonl",
+      "sha256Before": "6767aa1fef3451bd1a5e1d10204747777d15bae27c8a16d135f9a9b9b4ae99cb",
+      "sha256After": "6767aa1fef3451bd1a5e1d10204747777d15bae27c8a16d135f9a9b9b4ae99cb",
+      "byteIdentical": true
+    },
+    {
+      "file": "observer/scans.jsonl",
+      "sha256Before": "fb28b42f7fe9529c25cef7ff5695bebcb0aee75565e2b0473426e03007b4e833",
+      "sha256After": "fb28b42f7fe9529c25cef7ff5695bebcb0aee75565e2b0473426e03007b4e833",
+      "byteIdentical": true
+    }
+  ],
+  "previousChallengerJournalPrefixes": [
+    {
+      "file": "challenger/challenges.jsonl",
+      "originalBytes": 53743,
+      "originalSha256": "9fea7210a817fc14a04ea569d2d374eed107d0fbf6c7645942adfcb8ab4d62a9",
+      "originalPrefixByteIdentical": true
+    },
+    {
+      "file": "challenger/runs.jsonl",
+      "originalBytes": 9914,
+      "originalSha256": "6c719d3120c235db882fa0e1782d62e73d06c318938fcc0eeb9e36cdb627cb2b",
+      "originalPrefixByteIdentical": true
+    }
+  ],
+  "unitTests": 153,
+  "browserSuites": 4
+}

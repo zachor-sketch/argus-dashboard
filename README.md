@@ -32,3 +32,5 @@ Run `npm run check` for JavaScript syntax and `npm test` for portfolio calculati
 Commit public files to `main` and push to `origin`. GitHub Pages is configured to publish `main` from `/` (repository root). `.nojekyll` preserves direct static serving. All frontend URLs are relative so the project subpath works. No credentials, local runtime paths, or test screenshots are required on the deployed site.
 
 Before declaring a release live, confirm that the HTML, JavaScript, and stylesheet served at the Pages URL match the pushed files. A successful push alone does not prove that Pages has finished deploying.
+
+See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).

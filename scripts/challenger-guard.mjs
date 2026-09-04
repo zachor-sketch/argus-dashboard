@@ -4,6 +4,7 @@ import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {JOURNALS, verifyJournal} from './challenger-store.mjs';
 import {validatePilotLinks} from './challenger-pilot-records.mjs';
+import {LANE_JOURNALS, verifyLanes} from './challenger-lane-store.mjs';
 
 export function trustedPrefix(root, name, ref = 'HEAD') {
   if (!JOURNALS.includes(name) || !/^[a-zA-Z0-9_./^-]+$/.test(ref) || ref.startsWith('-')) throw Error('CHALLENGER_REFERENCE_DENIED');
@@ -15,11 +16,12 @@ export function trustedPrefix(root, name, ref = 'HEAD') {
 export function verifyHistory(root, ref = 'HEAD') {
   const rows = JOURNALS.map(name => verifyJournal(root, name, trustedPrefix(root, name, ref)));
   validatePilotLinks(rows[0], rows[1]);
+  if (LANE_JOURNALS.some(name => fs.existsSync(path.join(root, 'challenger', name)))) verifyLanes(root, ref);
 }
 
 export function snapshotProtected(root) {
   const files = execFileSync('git', ['ls-files', '-z'], {cwd: root, encoding: 'utf8'}).split('\0').filter(Boolean);
-  return new Map(files.filter(file => !JOURNALS.some(name => file === `challenger/${name}`)).map(file => [file, fs.readFileSync(path.join(root, file))]));
+  return new Map(files.filter(file => ![...JOURNALS, ...LANE_JOURNALS].some(name => file === `challenger/${name}`)).map(file => [file, fs.readFileSync(path.join(root, file))]));
 }
 
 export function assertProtected(root, before) {

@@ -145,3 +145,5 @@ the direct Node equivalents of the package scripts because npm was not on PATH.
 for 17 protected artifacts relative to starting commit
 `83291af67046d433fe091adacff8629de2918d0c`. This is a release audit record, not a
 replacement canonical baseline or validation ledger.
+
+See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).
