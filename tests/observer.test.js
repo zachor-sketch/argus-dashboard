@@ -6,7 +6,7 @@ import path from 'node:path';
 import {MONITORS} from '../lib/observer-config.js';
 import {extractEvidence,filingRows,sensorTerms,publicationDate} from '../lib/observer-rules.js';
 import {observerHealth,openObserverReviews} from '../lib/observer-model.js';
-import {appendJournal,readJournal,validateChain,journal,hash,assertBaseline} from '../scripts/observer-store.mjs';
+import {appendJournal,readJournal,validateChain,journal,hash,assertBaseline,assertAppendOnly} from '../scripts/observer-store.mjs';
 import {runObserver,makeClient} from '../scripts/observer-run.mjs';
 import {BASELINE_V10_25 as B} from '../datasets/baseline_v10_25.js';
 const company=MONITORS.find(c=>c.ticker==='INTU');
@@ -59,6 +59,11 @@ test('rate-limit responses block further requests to the host for the run',async
  await assert.rejects(client('https://www.sec.gov/a'),/HTTP_429/);await assert.rejects(client('https://www.sec.gov/b'),/BLOCKED_FOR_RUN/);assert.equal(requests,1);
 });
 test('committed observer journals have valid hash chains',()=>{for(const f of ['events.jsonl','scans.jsonl','documents.jsonl'])assert.ok(validateChain(readJournal(process.cwd(),f)))});
+test('append-only comparison tolerates Windows line endings but rejects edits and truncation',()=>{
+ assertAppendOnly('{"id":"a"}\n','{"id":"a"}\r\n{"id":"b"}\n');
+ assert.throws(()=>assertAppendOnly('{"id":"a"}\n','{"id":"b"}\n'),/APPEND_ONLY/);
+ assert.throws(()=>assertAppendOnly('{"id":"a"}\n',''),/APPEND_ONLY/);
+});
 test('official macro titles become scoped transmission reviews with original provenance',async()=>{
  const dir=temp(),url='https://www.federalreserve.gov/feeds/press_all.xml',client=async u=>u.includes('company_tickers')?JSON.stringify({0:{ticker:'INTU',cik_str:123}}):u.includes('submissions')?JSON.stringify({tickers:['INTU'],filings:{recent:{accessionNumber:[],form:[],filingDate:[],primaryDocument:[]}}}):'<rss><channel><item><title>Federal funds rate decision</title><link>https://www.federalreserve.gov/newsevents/fixture.htm</link><pubDate>Thu, 03 Sep 2026 14:00:00 GMT</pubDate></item></channel></rss>';
  try{await runObserver({directory:dir,companies:[company],client,now:new Date('2026-09-04T06:17:00Z'),runId:'macro-fixture',macroSources:[{url,tier:'T2_OFFICIAL_REGULATOR',terms:/federal funds/i,variable:'Funding costs',sectors:null}]});const events=readJournal(dir,'events.jsonl');assert.equal(events.length,1);assert.equal(events[0].eventType,'macro_transmission');assert.equal(events[0].status,'OPEN');assert.match(events[0].variable,/Funding costs/);assert.equal(events[0].sourceAuthorityTier,'T2_OFFICIAL_REGULATOR')}finally{fs.rmSync(dir,{recursive:true,force:true})}

@@ -5,6 +5,7 @@ import {canonical} from '../lib/integrity.js';
 import {BASELINE_V10_25 as B} from '../datasets/baseline_v10_25.js';
 export const JOURNALS=['events.jsonl','scans.jsonl','documents.jsonl'];
 export const hash=value=>createHash('sha256').update(typeof value==='string'?value:canonical(value)).digest('hex');
+export function assertAppendOnly(before,after){if(!after.replace(/\r\n/g,'\n').startsWith(before.replace(/\r\n/g,'\n')))throw Error('APPEND_ONLY_VIOLATION')}
 export function assertBaseline(){if(hash(B)!=='0c6c0ddd63284379e5da3f84ccfefe7b6a79850bd82ff6722586579104544415')throw Error('BASELINE_INTEGRITY_FAILURE')}
 export function journal(root,name){
  if(!JOURNALS.includes(name))throw Error('OBSERVER_WRITE_DENIED');
