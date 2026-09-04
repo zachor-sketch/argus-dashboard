@@ -17,7 +17,7 @@ export async function runObserver({directory=root,client=makeClient(),companies=
  const existing=readJournal(directory,'documents.jsonl'),seen=new Set(existing.map(d=>d.id)),complete=new Set(existing.filter(d=>d.complete).map(d=>d.url));
  const history=readJournal(directory,'scans.jsonl');
  const events=[],documents=[],results=[],failedSources=[];let tickerMap={};
- const failure=(ticker,source,error)=>{const message=String(error.message||error).slice(0,180),f={ticker,source,error:message,category:failureCategory(message)};failedSources.push(f);return f};
+ const failure=(ticker,source,error,context={})=>{const message=String(error.message||error).slice(0,180),f={ticker,source,error:message,category:failureCategory(message),...(context.discoveredFrom?{discoveredFrom:context.discoveredFrom}:{})};failedSources.push(f);return f};
  const get=async url=>{if(Date.now()>deadline)throw Error('SCAN_BUDGET_EXHAUSTED');return client(url)};
  function event(company,source,timestamp,tier,item){
   const payload={ticker:company.ticker,timestamp,detectedAt:started,source,sourceAuthorityTier:tier,...item,decisionImpact:'NONE',status:item.reviewRequired?'OPEN':'EVIDENCE',ruleVersion:1};
@@ -61,7 +61,7 @@ export async function runObserver({directory=root,client=makeClient(),companies=
   // Issuer site fallback for non-US listings or unavailable SEC coverage. Never treat an IR home page as a release.
   if(!secOK){
    const issuerGet=url=>get(url);issuerGet.finalURL=url=>client.finalURL?.(url)||url;
-   const result=await collectIssuer({company,get:issuerGet,maxDocuments:C.maxDocumentsPerCompany,failure:(url,e)=>failure(company.ticker,url,e),ingest:(url,date,html,dateSource,dateMethod)=>ingest(company,url,date,'T1_ISSUER',companyCutoff,{html,dateSource,dateMethod})});
+   const result=await collectIssuer({company,get:issuerGet,maxDocuments:C.maxDocumentsPerCompany,failure:(url,e,context)=>failure(company.ticker,url,e,context),ingest:(url,date,html,dateSource,dateMethod)=>ingest(company,url,date,'T1_ISSUER',companyCutoff,{html,dateSource,dateMethod})});
    irOK=result.usable;sources.push(...result.sources);
   }
   const ok=failedSources.length===before&&(secOK||irOK);
