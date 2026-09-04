@@ -62,3 +62,17 @@ html[lang="he"] h1,html[lang="he"] h2,html[lang="he"] h3,html[lang="he"] .eyebro
 .quote-meta {display:grid;gap:4px;font-size:9px;line-height:1.45;color:var(--muted);white-space:normal;overflow-wrap:anywhere}
 .quote-meta bdi {white-space:normal}
 .quote-meta a {color:inherit;text-decoration:underline;text-underline-offset:2px}
+.observer-metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0}
+.observer-metrics article {padding:18px;display:grid;gap:10px;min-width:0}
+.observer-metrics strong {font-size:21px;overflow-wrap:anywhere}
+.observer-warning {border-inline-start:3px solid var(--amber);padding:12px;background:var(--surface-2)}
+.observer-state.green {color:var(--green)}
+.observer-state.orange {color:var(--amber)}
+.observer-state.red {color:var(--red)}
+#observer td {white-space:normal;min-width:130px;max-width:340px;overflow-wrap:anywhere}
+#observer td small {display:block;color:var(--muted);margin-top:6px}
+.observer-event {padding:14px;border-bottom:1px solid var(--border);overflow-wrap:anywhere}
+.observer-event blockquote {margin:14px 0;padding-inline-start:14px;border-inline-start:2px solid var(--border);line-height:1.7}
+.observer-event form {display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+#observer .panel {margin-block:12px}
+@media(max-width:700px){.observer-metrics {grid-template-columns:repeat(2,minmax(0,1fr))}.observer-metrics article{padding:12px}.observer-metrics strong{font-size:17px}}

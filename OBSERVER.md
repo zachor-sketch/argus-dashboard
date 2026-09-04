@@ -1,0 +1,29 @@
+# ARGUS Observer V1
+
+Fundamentals-first, deterministic evidence collection. This is not a valuation engine, quote feed, recommendation agent or trading integration. The immutable V10.25 baseline, original formulas, portfolio decisions, market snapshot, research imports and forward-proof authorization are not writable by the observer.
+
+## Architecture and operation
+
+- `.github/workflows/observer.yml`: daily **06:17 UTC**, manual `workflow_dispatch`, and deployment on production pushes. Uses standard public GitHub-hosted Linux runners; no paid API, AI model or secret data subscription. Schedules can be delayed by GitHub and can be disabled after repository inactivity.
+- `lib/observer-config.js`: derives all **100** monitoring profiles from the existing universe's Critical Sensors, Economic Engine, issuer URL, exchange and research review dates. No replacement research template or automatic review-date reset.
+- `scripts/observer-run.mjs`: SEC ticker identity mapping, submissions metadata, new filing documents and linked exhibits. Supports 10-K/Q, 8-K, 6-K, 20-F/40-F, late filings, registration statements and proxies. Issuer HTML discovery is a partial fallback for non-US/unmapped/unavailable SEC coverage. Federal Reserve RSS and Federal Register export-control announcements supply scoped transmission review candidates.
+- `lib/observer-rules.js`: extracts source excerpts for earnings, guidance, revenue, margins, cash flow, bookings, concentration, liquidity, dilution, capital allocation, M&A, management and regulatory topics, plus company-specific critical-sensor matches. Excerpts are **candidate evidence**, not verified changes in intrinsic value. Direction remains **ambiguous** until human review; V1 does not invent period comparisons, normalize financials, calculate FCF, or infer causal impact.
+- `observer/events.jsonl`, `documents.jsonl`, `scans.jsonl`: append-only, deduplicated, SHA-256 chained journals. No raw-page dumps. Event identity is based on ticker, source, publication timestamp, event type, affected variable and excerpt. Completed SEC documents are not downloaded again. A failed fetch is retried on a later run, not marked complete. Reruns have distinct scan attempts but reuse evidence identities.
+- `scripts/observer-store.mjs` restricts writes to those three journal names. `observer-guard.mjs` checks append-only prefixes, hash chains, canonical baseline hash and the Git write boundary before a workflow commit. Existing source-artifact/hash tests run too.
+- `lib/observer-ui.js`: bilingual Observer Status, source failure details, all 100 profiles, evidence drill-down and OPEN Event Queue items. Human review acknowledgments are append-only local browser records; they neither delete evidence nor alter decisions. Review schedules remain the authoritative historical schedule until a separately authorized research update.
+
+## Limits and failure behavior
+
+Requests are serial and spaced at least 1.1 seconds apart (below SEC's 10/second ceiling), with an identifying User-Agent, 15-second timeouts, 8 MB document cap and a 16-minute scan budget. HTTP 403/429 blocks further requests to that host for the run. No access-control bypass or retry storm. Up to four new filings per company and three exhibits per filing are processed in one run; remaining work is explicitly flagged. The initial bootstrap window is seven days; subsequent SEC recovery starts from the last successful company scan.
+
+IR fallback is partial coverage and cannot mark a company fully current. Redirects, undated releases, JavaScript-only sites, PDFs, custom XBRL, non-English disclosure parsing, foreign regulatory connectors, extra exhibits and inaccessible sources remain visible gaps. SEC disclosure may lag an issuer's standalone earnings release. Macro coverage is limited to the two configured official feeds, not comprehensive geopolitical news monitoring. Keyword matches can be false positives and snippets may lack context; source links and human review are essential.
+
+**A successful HTTP scan is not a completed underwriting review.** Green requires a successful, fresh company scan, verified successful workflow, a non-overdue research review date and no unreviewed material evidence. Orange means approaching review/scan expiry or unconfirmed workflow status. Red means overdue, missing/failed/stale coverage or material evidence. Missing heartbeat becomes stale after 36 hours. The dashboard checks the public GitHub workflow API; if it is unavailable it never marks a company green. Hard workflow failures remain visible through that API even if no new journal could be deployed. Reload the dashboard to refresh workflow status.
+
+Partial scan results and failures are committed and deployed before the workflow reports failure. Pages uses an explicit Actions deployment because a bot commit using GITHUB_TOKEN does not trigger a second workflow. A push conflict is not force-pushed or auto-merged; it fails visibly for a manual rerun. Only runtime assets are uploaded; inspection scripts and test artifacts are excluded.
+
+## Validation
+
+`npm run check`, `npm test`; browser suites: `tests/browser.cjs`, `tests/ui-polish.cjs`, `tests/market-browser.cjs`, `tests/observer-browser.cjs` (Playwright/Edge). Observer tests use isolated fixtures, not generated production evidence. No fixture events are committed to the journals.
+
+Sources: [SEC APIs](https://www.sec.gov/search-filings/edgar-application-programming-interfaces), [SEC fair access](https://www.sec.gov/about/webmaster-frequently-asked-questions), [GitHub scheduled events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule), [Federal Reserve feeds](https://www.federalreserve.gov/feeds/feeds.htm).

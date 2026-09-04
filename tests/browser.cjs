@@ -11,6 +11,7 @@ const fs = require('node:fs');
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   page.on('console',msg=>{if(msg.type()==='error') errors.push(msg.text());});
+  await page.route('https://api.github.com/**',r=>r.fulfill({json:{workflow_runs:[{event:'workflow_dispatch',status:'completed',conclusion:'success'}]}}));
   const response=await page.goto(process.argv[3] || 'http://127.0.0.1:4173');
   assert.equal(response.status(),200);
   await page.locator('.stock-card').last().waitFor();

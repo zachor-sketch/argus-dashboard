@@ -1,0 +1,86 @@
+name: ARGUS Observer
+on:
+  schedule:
+    - cron: '17 6 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+concurrency:
+  group: argus-observer-release
+  cancel-in-progress: false
+jobs:
+  observe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 23
+    permissions:
+      contents: write
+    outputs:
+      scan-outcome: ${{ steps.scan.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm run check && npm test
+      - name: Daily fundamentals scan
+        id: scan
+        if: github.event_name != 'push'
+        continue-on-error: true
+        run: node scripts/observer-run.mjs
+      - name: Verify observer write boundary
+        if: always() && steps.scan.outcome != 'skipped'
+        run: node scripts/observer-guard.mjs && npm test
+      - name: Persist append-only evidence and scan failures
+        if: success() && github.event_name != 'push'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add observer/events.jsonl observer/scans.jsonl observer/documents.jsonl
+          if ! git diff --cached --quiet; then
+            git commit -m 'Append ARGUS observer evidence and scan status'
+            git push origin HEAD:main
+          fi
+  deploy:
+    needs: observe
+    if: always() && needs.observe.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/stage-pages.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - uses: actions/deploy-pages@v4
+        id: deployment
+  result:
+    needs: [observe, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail visibly after publishing partial coverage
+        env:
+          OBSERVE: ${{ needs.observe.result }}
+          SCAN: ${{ needs.observe.outputs.scan-outcome }}
+          DEPLOY: ${{ needs.deploy.result }}
+        run: |
+          if [ "$OBSERVE" != success ] || [ "$DEPLOY" != success ] || [ "$SCAN" = failure ]; then
+            echo 'Observer or deployment failed. Dashboard coverage must not be treated as current.'
+            exit 1
+          fi

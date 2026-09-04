@@ -6,6 +6,7 @@ const assert=require('node:assert/strict');
  browser=await chromium.launch({headless:true,channel:'msedge'});
  const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.clock.install({time:new Date('2026-09-04T04:53:27Z')});
+  await page.route('https://api.github.com/**',r=>r.fulfill({json:{workflow_runs:[{event:'workflow_dispatch',status:'completed',conclusion:'success'}]}}));
  await page.goto('http://127.0.0.1:4173');await page.locator('.review-chip').last().waitFor();assert.deepEqual(errors,[]);
  for(const lang of ['he','en']){
   if(lang==='en')await Promise.all([page.waitForNavigation(),page.locator('[data-lang="en"]').click()]);

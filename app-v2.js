@@ -12,6 +12,7 @@ import {verifiedQuote,holdingMetrics,companyMeta,reviewState,authorization,estim
 import {originalEngine} from './lib/engine_v10_25.js';
 import * as V from './lib/view.js';
 import {translateDOM} from './lib/i18n.js';
+import {bootObserver,observerOpen} from './lib/observer-ui.js';
 
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const tr=(en,he)=>V.t(en,he), esc=V.esc;
@@ -20,7 +21,7 @@ try{V.setLanguage(localStorage.getItem('ARGUS_V2_LANGUAGE')||'he')}catch{V.setLa
 let integrity={ok:false,actual:'checking'},query='';
 const stock=t=>B.stocks.find(x=>x.ticker===t), engine=t=>B.engine[t], lock=t=>B.lockedBaselines[t];
 const local=k=>{try{return records(k)}catch{return []}};
-const material=t=>local('EVENT_LOG').some(e=>e.ticker===t&&e.status==='OPEN');
+const material=t=>local('EVENT_LOG').some(e=>e.ticker===t&&e.status==='OPEN')||observerOpen().some(e=>e.ticker===t);
 const show=(title,eyebrow,html)=>{const d=$('#research-dialog');$('#dialog-title').textContent=title;$('#dialog-eyebrow').textContent=eyebrow;$('#dialog-content').innerHTML='<p class="source-note">'+tr('Original source evidence is preserved in its source language. Historical prices are not current quotes.','ראיות המקור נשמרות בשפת המקור. מחירים היסטוריים אינם ציטוטים נוכחיים.')+'</p>'+html;d.showModal()};
 
 function decision(d){return V.pill(V.decision(d),V.tones[d]||'neutral')}
@@ -166,4 +167,8 @@ document.addEventListener('click',e=>{
  const body=p==='engine'?enginePanel(ticker):p==='forecast'?forecast(ticker):p==='holdings'?(V.sourceData(h?{...h,...holdingMetrics(h,P.total)}:{holding:V.missing()})+learning(ticker)):p==='buy'?V.sourceData(s.buy):p==='risks'?V.sourceData(s.no):V.sourceData({essence:s.essence,moat:s.moat,why:s.why,logic:s.logic});
  show(s.company,p==='engine'?'V10.25 FULL ENGINE':V.label(p),body);
 },true);
-boot();verify();
+document.addEventListener('argus-observer-updated',()=>{
+ $$('#daily .review-chip:not([data-review="price"])').forEach(chip=>{const c=reviewInfo(chip.dataset.reviewTicker,chip.dataset.review);chip.className='review-chip '+c.state});
+ $$('#daily tbody tr').forEach(row=>{if(material($('.daily-ticker bdi',row).textContent))row.className='priority-urgent'});
+});
+boot();verify();bootObserver();

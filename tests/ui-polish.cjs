@@ -9,6 +9,7 @@ const fs=require('node:fs');
   browser=await chromium.launch({headless:true,channel:'msedge'});
   const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'});
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await page.route('https://api.github.com/**',r=>r.fulfill({json:{workflow_runs:[{event:'workflow_dispatch',status:'completed',conclusion:'success'}]}}));
   await page.goto('http://127.0.0.1:4173');await page.locator('.review-chip').last().waitFor();
   fs.mkdirSync('test-results',{recursive:true});
   for(const lang of ['he','en']){
