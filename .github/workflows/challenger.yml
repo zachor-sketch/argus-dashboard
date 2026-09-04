@@ -37,5 +37,7 @@ jobs:
         run: node scripts/challenger-pilot.mjs verify
       - name: Verify isolated discovery registry, provenance and evidence completion
         run: node scripts/challenger-b1.mjs verify
+      - name: Replay Phase C underwriting calculations, PIT inputs and frozen debate
+        run: node scripts/challenger-c.mjs verify
       - name: Assert no tracked or untracked writes
         run: test -z "$(git status --porcelain)"

@@ -1,12 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
 import {hash, assertAppendOnly, validateJournal} from './challenger-store.mjs';
 import {validateCandidate, validateCapture, validateDiscoveryPacket, routeDiscovery} from '../lib/challenger-discovery.js';
 import {exact} from '../lib/challenger-pilot-model.js';
 import {instant} from '../lib/challenger-model.js';
 import {evidenceCompletion} from '../lib/challenger-evidence-completion.js';
-export const LANE_JOURNALS = Object.freeze(['discovery/candidates.jsonl', 'discovery/evidence.jsonl', 'discovery/packets.jsonl', 'discovery/runs.jsonl', 'core/coverage.jsonl']);
+import {C_JOURNALS} from '../lib/challenger-underwriting.js';
+import {validateCRecord,validateCLinks} from './challenger-underwriting-records.mjs';
+export const LANE_JOURNALS = Object.freeze(['discovery/candidates.jsonl', 'discovery/evidence.jsonl', 'discovery/packets.jsonl', 'discovery/runs.jsonl', 'core/coverage.jsonl', ...C_JOURNALS]);
 
 // Parse only the repository's existing JSON export wrapper; never execute source code.
 export function coreIdentities(root) {
@@ -33,6 +36,7 @@ export function lanePrefix(root, name, ref = 'HEAD') {
   return exists ? execFileSync('git', ['show', `${ref}:${file}`], {cwd: root}) : Buffer.alloc(0);
 }
 function payload(name, row) {
+  if(C_JOURNALS.includes(name))return validateCRecord(name,row);
   if (name === 'discovery/candidates.jsonl') return validateCandidate(row);
   if (name === 'discovery/evidence.jsonl') { validateCapture(row); if (hash(row.claims) !== row.contentHash) throw Error('LANE_SOURCE_DIGEST'); return; }
   if (name === 'discovery/packets.jsonl') {
@@ -63,6 +67,13 @@ export function readLane(root, name, trustedPrefix) {
   });
 }
 function linked(root, data) {
+  validateCLinks(data.slice(5),coreIdentities(root),data[0]);
+  for(const row of data[5])for(const s of row.payload.sources.filter(s=>s.kind==='VERIFIED_PRICE')){
+    const raw=fs.readFileSync(path.join(root,'datasets/market_snapshot.js')),source=raw.toString('utf8'),ticker=row.payload.ticker;
+    const match=source.match(new RegExp(ticker+":quote\\((\\d+(?:\\.\\d+)?),'([^']+)'"));
+    const published=source.match(/const timestamp='([^']+)'/)?.[1],observed=source.match(/verifiedAt:'([^']+)'/)?.[1];
+    if(!match||s.locator!==`sha256:${createHash('sha256').update(raw).digest('hex')}`||s.url!==match[2]||s.publishedAt!==published||s.observedAt!==observed||row.payload.facts.filter(f=>f.sourceId===s.id).some(f=>f.metric!=='PRICE'||f.value!==Number(match[1])) )throw Error('UNDERWRITING_VERIFIED_QUOTE_REPLAY');
+  }
   const core = new Set(coreIdentities(root).map(c => c.ticker)), candidates = data[0], sources = data[1], packets = data[2], runs = data[3];
   const seen = new Set();
   for (const row of candidates) {

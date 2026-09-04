@@ -147,3 +147,5 @@ for 17 protected artifacts relative to starting commit
 replacement canonical baseline or validation ledger.
 
 See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).
+
+See [Phase C underwriting evidence, gates and frozen pilot](CHALLENGER_PHASE_C.md).

@@ -34,3 +34,5 @@ Commit public files to `main` and push to `origin`. GitHub Pages is configured t
 Before declaring a release live, confirm that the HTML, JavaScript, and stylesheet served at the Pages URL match the pushed files. A successful push alone does not prove that Pages has finished deploying.
 
 See [Phase B.1 discovery lanes, governance and frozen pilot results](CHALLENGER_PHASE_B1.md).
+
+See [Phase C underwriting evidence, gates and frozen pilot](CHALLENGER_PHASE_C.md).
