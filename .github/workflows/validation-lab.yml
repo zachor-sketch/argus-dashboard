@@ -1,0 +1,29 @@
+name: ARGUS Validation Lab V1
+on:
+  push:
+    branches: [main]
+    paths: ['validation-lab/**', 'lib/validation-lab-*.js', 'scripts/validation-lab-*.mjs', 'tests/validation-lab.test.js', 'VALIDATION_LAB*', '.github/workflows/validation-lab.yml']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sealed-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: 24}
+      - run: npm run check && npm test
+      - name: Verify chains, selection lock and protected isolation
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if [ -z "$BASE" ] || [ "$BASE" = 0000000000000000000000000000000000000000 ]; then BASE=HEAD; fi
+          node scripts/validation-lab-verify.mjs "$BASE"
+      - run: node scripts/validation-lab-replay.mjs
+      - run: node scripts/validation-lab-scoreboard.mjs
+      - name: Verify isolation and clean checkout
+        run: test -z "$(git status --porcelain)"

@@ -1,0 +1,2 @@
+import {verify} from './validation-lab-verify.mjs';
+const d=verify();console.log(JSON.stringify({mode:'VALIDATION_LAB_DRY_RUN',label:'NOT_AUTHORIZATION_EVIDENCE',attempted:d['cases.jsonl'].length,accepted:d['cases.jsonl'].filter(r=>r.payload.status==='ACCEPTED').length,rejected:d['cases.jsonl'].filter(r=>r.payload.status==='REJECTED').length,reason:'Existing 20-case development replay is permanently contaminated/diagnostic-only; no admissible new PIT source packs were available.'},null,2));
